@@ -6,6 +6,7 @@ type PickRangeDayState = {
     from?: Date;
     to?: Date;
     enteredTo?: Date; // keep track of the last day for mouseEnter
+    hello?: string;
 }
 
 const defaultDate: PickRangeDayState = {
