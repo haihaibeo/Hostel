@@ -1,6 +1,8 @@
-import { Button, Grid, GridItem, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import React from 'react'
-import { BsSearch } from 'react-icons/bs'
+import { Button, Grid, GridItem, Input, InputGroup, InputLeftElement, Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
+import React from 'react';
+import { BsSearch } from 'react-icons/bs';
+import 'react-day-picker/lib/style.css';
+import PickRangeDay from './PickRangeDay';
 
 type SearchBarProps = {
     country: string;
@@ -21,7 +23,14 @@ const SearchBar = () => {
                 </InputGroup>
             </GridItem>
             <GridItem colSpan={3}>
-                <Input placeholder="Check-in Check-out" size="lg" />
+                <Popover closeOnBlur={true}>
+                    <PopoverTrigger>
+                        <Button variant="outline" size="lg">Choose date</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <PickRangeDay />
+                    </PopoverContent>
+                </Popover>
             </GridItem>
             <GridItem colSpan={4}>
                 <Input placeholder="Size" size="lg" />
@@ -30,6 +39,7 @@ const SearchBar = () => {
                 <Button size="lg">Search</Button>
             </GridItem>
         </Grid>
+
     </div>)
 }
 
