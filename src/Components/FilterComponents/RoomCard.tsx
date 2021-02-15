@@ -1,5 +1,6 @@
 import { Badge, Box, Image } from '@chakra-ui/react';
 import React from 'react';
+import { BsStar, BsStarFill } from 'react-icons/bs';
 
 const defaultRoom: RoomCardType = {
     name: "Crystal palace",
@@ -20,7 +21,7 @@ type RoomCardProps = {
 const RoomCard: React.FC<RoomCardProps> = ({ flex, room: roomt, children }) => {
     const room = defaultRoom;
     return (
-        <Box overflow="hidden">
+        <Box overflow="hidden" borderWidth="1px" borderRadius="lg">
             <Image src={room.imageUrl} alt={room.imageAlt} />
             <Box p="4">
                 <Box d="flex" alignItems="baseline">
@@ -50,6 +51,21 @@ const RoomCard: React.FC<RoomCardProps> = ({ flex, room: roomt, children }) => {
                     isTruncated
                 >
                     {room.name}
+                </Box>
+                <Box
+                    as="h3"
+                    lineHeight="tight"
+                    isTruncated
+                >
+                    {room.description}
+                </Box>
+                <Box>
+                    {room.formattedPrice}
+                </Box>
+                <Box d="flex" mt="2" alignItems="center">
+                    {Array(5).fill("").map((_, i) => {
+                        return (i < room.rating - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
+                    })}
                 </Box>
             </Box>
         </Box>

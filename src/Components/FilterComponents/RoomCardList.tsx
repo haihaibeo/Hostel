@@ -1,23 +1,16 @@
-import { Box, Flex, Grid, Wrap, WrapItem } from '@chakra-ui/react'
+import { SimpleGrid } from '@chakra-ui/react'
 import React from 'react'
 import RoomCard from './RoomCard'
 
 const RoomCardList = () => {
     return (
-        <Wrap spacing="4">
-            <WrapItem>
-                <RoomCard></RoomCard>
-            </WrapItem>
-            <WrapItem>
-                <RoomCard></RoomCard>
-            </WrapItem>
-            <WrapItem>
-                <RoomCard></RoomCard>
-            </WrapItem>
-            <WrapItem>
-                <RoomCard></RoomCard>
-            </WrapItem>
-        </Wrap>
+        <SimpleGrid spacing="8" columns={[1, 1, 2, 2, 3]}>
+            <RoomCard></RoomCard>
+            <RoomCard></RoomCard>
+            <RoomCard></RoomCard>
+            <RoomCard></RoomCard>
+            <RoomCard></RoomCard>
+        </SimpleGrid>
     )
 }
 
