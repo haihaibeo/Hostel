@@ -1,0 +1,33 @@
+@import "/node_modules/react-day-picker/lib/style.css";
+
+.DayPicker-Day--sunday {
+  background-color: #0ceeee;
+}
+
+.DayPicker-Day {
+  display: table-cell;
+  padding: 0.5em;
+  border-radius: 0%;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+}
+
+.DayPicker-Day--today {
+  color: #a3d002;
+  font-weight: 700;
+}
+
+.Range
+  .DayPicker-Day--selected:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside) {
+  background-color: #f0f8ff !important;
+  color: #4a90e2;
+}
+.Range .DayPicker-Day {
+  border-radius: 0 !important;
+}
+
+.DayPicker:not(.DayPicker--interactionDisabled)
+  .DayPicker-Day:not(.DayPicker-Day--disabled):not(.DayPicker-Day--selected):not(.DayPicker-Day--outside):hover {
+  background-color: #2592f1;
+}
