@@ -10,3 +10,10 @@ type RoomCardType = {
     formattedPrice: string;
     services: Array<string>;
 }
+
+type RoomBadge = {
+    id: string;
+    title: string;
+    description: string;
+    icon?: any;
+}

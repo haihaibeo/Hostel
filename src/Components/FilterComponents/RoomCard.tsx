@@ -29,7 +29,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, children }) => {
                     <Box d="flex" alignItems="baseline">
                         <Badge borderRadius="full" px="2" colorScheme="teal">
                             New
-                    </Badge>
+                        </Badge>
                         {room.services.map(s => {
                             return (
                                 <Box
