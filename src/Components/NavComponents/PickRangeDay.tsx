@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Center, Flex } from '@chakra-ui/react';
 import React from 'react'
 import DayPicker from 'react-day-picker';
 import { DateUtils } from "react-day-picker";
@@ -72,9 +72,9 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate }) => 
         setState(defaultDate);
     }
 
-    const selectedDays = [state.from, { from: state.from, to: state.enteredTo }];
+    const selected = [state.from, { from: state.from, to: state.enteredTo }];
 
-    const disabledDays = {
+    const disabled = {
         before: new Date(Date.now())
     }
 
@@ -83,17 +83,32 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate }) => 
         end: state.enteredTo,
     }
 
+    const modifierStyles = {
+        start: {
+            backgroundColor: '#19456b',
+        },
+        end: {
+            backgroundColor: '#19456b',
+        },
+        disable: {
+            backgroundColor: '#ffffff',
+        }
+    }
+
     return (
-        <div>
-            <DayPicker
-                numberOfMonths={2}
-                fromMonth={state.from}
-                modifiers={modifiers as any}
-                onDayClick={handleDayClick}
-                disabledDays={disabledDays}
-                onDayMouseEnter={handleDayMouseEnter}
-                selectedDays={selectedDays as any}>
-            </DayPicker>
+        <Box>
+            <Center>
+                <DayPicker
+                    modifiersStyles={modifierStyles}
+                    numberOfMonths={2}
+                    fromMonth={state.from}
+                    modifiers={modifiers as any}
+                    onDayClick={handleDayClick}
+                    disabledDays={disabled}
+                    onDayMouseEnter={handleDayMouseEnter}
+                    selectedDays={selected as any}>
+                </DayPicker>
+            </Center>
             <Flex justifyContent="center" alignItems="center">
                 {!state.from && !state.to && 'Please select the first day.'}
                 {state.from && !state.to && 'Please select the last day.'}
@@ -107,7 +122,7 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate }) => 
                     </Button>
                 )}
             </Flex>
-        </div>
+        </Box>
     )
 }
 
