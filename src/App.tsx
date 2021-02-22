@@ -4,7 +4,7 @@ import {
   Box,
   extendTheme,
 } from "@chakra-ui/react"
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { HashRouter as Router, Route, Switch } from 'react-router-dom'
 import HomePage from "./Pages/HomePage";
 import SingleRoom from "./Pages/SingleRoom";
 import ErrorPage from "./Pages/ErrorPage";
@@ -27,7 +27,7 @@ const myTheme = extendTheme({
 
 
 export const App = () => (
-  <Router>
+  <Router basename="/">
     <ChakraProvider theme={myTheme}>
 
       <Box d="flex" flexDir="column" minH="100vh">
@@ -40,7 +40,6 @@ export const App = () => (
             <Route component={ErrorPage} />
           </Switch>
         </Box>
-
         <Box flexShrink={0}>
           <Footer />
         </Box>

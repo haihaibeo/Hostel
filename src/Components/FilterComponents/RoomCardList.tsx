@@ -17,7 +17,7 @@ const RoomCardList = () => {
 const defaultRoom: RoomCardType = {
     id: "random-id-12321",
     name: "Crystal palace",
-    thumbnailUrl: "https://bit.ly/2Z4KKcF",
+    thumbnailUrl: "https://picsum.photos/1100/1000?random=1",
     thumbnailAlt: "rear view house with pool",
     description: "Best place in town",
     location: "Dark side, the moon",
@@ -28,7 +28,11 @@ const defaultRoom: RoomCardType = {
 }
 
 const rooms: Array<RoomCardType> = [
-    defaultRoom, defaultRoom, defaultRoom, defaultRoom, defaultRoom
+    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
+    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
+    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },
+    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=4" },
+    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=5" },
 ]
 
 export default RoomCardList;

@@ -104,11 +104,19 @@ const SingleRoom: React.FC = () => {
                     templateRows="repeat(2, 1fr)"
                     templateColumns="repeat(4, 1fr)">
 
-                    <GridItem colSpan={2} rowSpan={2} overflow="hidden" >
+                    {/* <GridItem colSpan={2} rowSpan={2} overflow="hidden" >
                         <Image src={room.images[0]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem>
+                    </GridItem> */}
 
-                    <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
+                    {room.images.map((image, i) => {
+                        return (
+                            <GridItem colSpan={i === 0 ? 2 : 1} rowSpan={i === 0 ? 2 : 1} overflow="hidden" >
+                                <Image src={image} h="auto" height="100%" w="100%" objectFit="cover" loading="lazy"></Image>
+                            </GridItem>
+                        )
+                    })}
+
+                    {/* <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
                         <Image src={room.images[1]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
                     </GridItem>
                     <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
@@ -119,7 +127,7 @@ const SingleRoom: React.FC = () => {
                     </GridItem>
                     <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
                         <Image src={room.images[4]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem>
+                    </GridItem> */}
                 </Grid>
             </Box>
 
@@ -219,7 +227,7 @@ const SingleRoom: React.FC = () => {
                     <Divider my="3" />
 
                     {/* another datepicker here */}
-                    <Box w="100%">
+                    <Box w="100%" display={{ base: "none", sm: "block", md: "block" }}>
                         <PickRangeDay updateDate={updateDate}></PickRangeDay>
                     </Box>
                 </Box>

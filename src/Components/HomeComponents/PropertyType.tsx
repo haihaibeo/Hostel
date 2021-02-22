@@ -7,7 +7,7 @@ const PropertyType = () => {
         <Link to="/rooms">
             <VStack alignItems="start" p="4">
                 <Box maxW="sm" maxH="sm">
-                    <Image width="inherit" height="inherit" src="https://bit.ly/2Z4KKcF" objectFit="cover"></Image>
+                    <Image width="inherit" height="inherit" src="https://picsum.photos/1100/1000?random=1" objectFit="cover"></Image>
                 </Box>
 
                 <Box

@@ -96,8 +96,8 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate }) => 
     }
 
     return (
-        <Box>
-            <Center>
+        <Box style={{ backdropFilter: "blur(5px)" }} alignSelf="stretch">
+            <Flex alignItems="stretch" flexDir="column">
                 <DayPicker
                     modifiersStyles={modifierStyles}
                     numberOfMonths={2}
@@ -108,7 +108,7 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate }) => 
                     onDayMouseEnter={handleDayMouseEnter}
                     selectedDays={selected as any}>
                 </DayPicker>
-            </Center>
+            </Flex>
             <Flex justifyContent="center" alignItems="center">
                 {!state.from && !state.to && 'Please select the first day.'}
                 {state.from && !state.to && 'Please select the last day.'}
