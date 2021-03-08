@@ -5,8 +5,8 @@ type RoomCardType = {
     thumbnailAlt: string;
     description: string;
     location: string;
-    rating: number;
-    rateCounter: number;
+    totalReview: number;
+    totalStar: number;
     formattedPrice: string;
     services: Array<string>;
 }

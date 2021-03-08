@@ -43,7 +43,7 @@ const SearchBar = () => {
     }
 
     return (<div>
-        <Box p="2" border="1px" borderColor="yellow.400">
+        <Box p="2" border="1px" borderColor="yellow.400" style={{ backdropFilter: "blur(5px)" }}>
             <Flex display={{ lg: "flex" }} alignItems="center">
                 <InputGroup>
                     <InputLeftElement pointerEvents="none" children={<Center alignSelf="center"><BsSearch /></Center>} />

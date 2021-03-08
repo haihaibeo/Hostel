@@ -21,8 +21,8 @@ const defaultRoom: RoomCardType = {
     thumbnailAlt: "rear view house with pool",
     description: "Best place in town",
     location: "Dark side, the moon",
-    rating: 4.5,
-    rateCounter: 23,
+    totalReview: 4,
+    totalStar: 23,
     formattedPrice: "2021.00$",
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
 }

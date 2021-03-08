@@ -81,10 +81,10 @@ const SingleRoom: React.FC = () => {
             <Box d="flex" mt="1">
                 <Box d="flex" alignItems="center">
                     {Array(5).fill("").map((_, i) => {
-                        return (i < room.rating - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
+                        return (i < room.totalReview - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
                     })}
 
-                    <Box as="span" ml="2" color="gray.500">{room.rating} reviews</Box>
+                    <Box as="span" ml="2" color="gray.500">{room.totalReview} reviews</Box>
 
                     <Box mx="4">&bull;</Box>
 
@@ -147,7 +147,7 @@ const SingleRoom: React.FC = () => {
                         <Spacer />
                         <Box d="flex" alignItems="center">
                             {Array(5).fill("").map((_, i) => {
-                                return (i < room.rating - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
+                                return (i < room.totalReview - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
                             })}
                         </Box>
                     </Flex>
@@ -251,8 +251,8 @@ const defaultRoom: RoomType = {
     roomIntroduction: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum congue eros id ligula porta, id fermentum ligula semper. Pellentesque eget pulvinar justo. Phasellus eu risus dolor. Aliquam mollis urna vel lectus ornare, nec ultricies augue gravida. Nunc dignissim diam vel massa cursus condimentum. Nulla pharetra molestie nunc, ac hendrerit felis posuere a. Sed finibus magna ut nibh luctus, ac dapibus mauris cursus. Sed eu porttitor lacus. Nulla venenatis erat quis orci consectetur efficitur. Phasellus nisl nisl, luctus et sapien nec, dictum feugiat felis. Nam nec ullamcorper mi, eu vulputate justo. Nullam nibh ipsum, dictum at commodo nec, molestie et ipsum. Aliquam sit amet tincidunt augue, sit amet consectetur mi.",
     description: "Best place in town",
     location: "Dark side, the moon",
-    rating: 4.5,
-    rateCounter: 23,
+    totalReview: 4,
+    totalStar: 23,
     formattedPrice: "2021.00$",
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"],
     roomBadges: badges,
