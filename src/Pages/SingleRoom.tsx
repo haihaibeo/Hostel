@@ -78,24 +78,28 @@ const SingleRoom: React.FC = () => {
             <Box as="h2" fontSize="3xl" fontWeight="semibold">{room.name}</Box>
 
             {/* rating, location, like button */}
-            <Box d="flex" mt="1">
-                <Box d="flex" alignItems="center">
-                    {Array(5).fill("").map((_, i) => {
-                        return (i < room.totalReview - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
-                    })}
-
-                    <Box as="span" ml="2" color="gray.500">{room.totalReview} reviews</Box>
-
-                    <Box mx="4">&bull;</Box>
-
+            <Box d="flex" mt="1" flexDir={{ base: "column", sm: "row" }}>
+                <Box d="flex" alignItems="start">
+                    <Box d="flex" flexDir={{ base: "column", sm: "row" }}>
+                        <Box d="flex" flexDir={{ base: "row" }}>
+                            {Array(5).fill("").map((_, i) => {
+                                return (i < room.totalReview - 1 ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
+                            })}
+                        </Box>
+                        <Box as="span" ml="2" color="gray.500">{room.totalReview} reviews</Box>
+                    </Box>
+                    <Spacer />
                     <Link to="/">
-                        <Button variant="link">{room.location}</Button>
+                        <Button variant="link">
+                            <Box mx="4">&bull;</Box>
+                            {room.location}
+                        </Button>
                     </Link>
                 </Box>
 
                 <Spacer />
 
-                <Button variant="ghost" size="sm" leftIcon={<BsHeart />}>Like</Button>
+                <Button alignSelf="start" variant="ghost" size="sm" leftIcon={<BsHeart />}>Like</Button>
             </Box>
 
             {/* image display */}
@@ -110,7 +114,7 @@ const SingleRoom: React.FC = () => {
 
                     {room.images.map((image, i) => {
                         return (
-                            <GridItem colSpan={i === 0 ? 2 : 1} rowSpan={i === 0 ? 2 : 1} overflow="hidden" >
+                            <GridItem key={i} colSpan={i === 0 ? 2 : 1} rowSpan={i === 0 ? 2 : 1} overflow="hidden" >
                                 <Image src={image} h="auto" height="100%" w="100%" objectFit="cover" loading="lazy"></Image>
                             </GridItem>
                         )
@@ -147,7 +151,7 @@ const SingleRoom: React.FC = () => {
                         <Spacer />
                         <Box d="flex" alignItems="center">
                             {Array(5).fill("").map((_, i) => {
-                                return (i < room.totalReview - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
+                                return (i < room.totalReview - 1 ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
                             })}
                         </Box>
                     </Flex>
@@ -194,9 +198,10 @@ const SingleRoom: React.FC = () => {
                         <VStack alignItems="start">
                             <Box as="h1" fontSize="2xl" fontWeight="semibold" >{"Owner: " + owner?.name}</Box>
                             <HStack>
-                                {room.services.map(s => {
+                                {room.services.map((s, i) => {
                                     return (
                                         <Box
+                                            key={i}
                                             color="gray.500"
                                             fontWeight="semibold"
                                             letterSpacing="wide"
@@ -232,8 +237,6 @@ const SingleRoom: React.FC = () => {
                     </Box>
                 </Box>
             </Box>
-
-            <Box height="1000px" bg="yellow.600" mt="4"></Box>
         </Box>
     )
 }

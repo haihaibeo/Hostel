@@ -1,0 +1,4 @@
+{
+    "/api/*": "/$1",
+    "/cities\\?cityId=:cityId": "/cities/:cityId"
+}

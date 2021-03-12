@@ -4,6 +4,10 @@
   background-color: #0ceeee;
 }
 
+datalist-cities {
+  background-color: #0ceeee;
+}
+
 .DayPicker-Day {
   display: table-cell;
   padding: 0.5em;

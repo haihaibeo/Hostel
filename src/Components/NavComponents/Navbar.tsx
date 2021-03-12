@@ -16,7 +16,7 @@ const Navbar = () => {
                         <Center>
                             <Logo />
                         </Center>
-                        <Heading size="md">NiceHostels.com</Heading>
+                        <Heading size="md" display={{ base: "none", sm: "block" }}>NiceHostels.com</Heading>
                     </HStack>
                 </Link>
                 <Spacer />

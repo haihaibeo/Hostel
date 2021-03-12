@@ -1,9 +1,10 @@
-import { Flex, Grid, Spacer } from '@chakra-ui/react';
-import React from 'react'
+import { Box, Flex, Grid, Link as ChakraLink, Spacer, VStack, Image, Tooltip } from '@chakra-ui/react';
+import React from 'react';
+import { Link } from "react-router-dom"
 import Slider, { Settings } from 'react-slick';
-import PropertyType from './PropertyType';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { isError, useQuery } from 'react-query';
 
 var settings: Settings = {
     dots: true,
@@ -41,17 +42,65 @@ var settings: Settings = {
     ]
 };
 
+const fetchPropertyTypes = async () => {
+    const url = "http://localhost:44343"
+    const res = await fetch(url + "/api/propertytypes");
+    const data: PropertyTypeType[] = await res.json();
+    return data;
+}
+
 const PropertyTypeList = () => {
+    const { data, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes);
+    console.log(data);
+
+    if (isError) return <Box>Something's wrong</Box>
     return (
         <div>
             <Slider {...settings}>
-                <PropertyType></PropertyType>
-                <PropertyType></PropertyType>
-                <PropertyType></PropertyType>
-                <PropertyType></PropertyType>
-                <PropertyType></PropertyType>
+                {data?.map((d, key) => <PropertyType type={d} key={key} />)}
             </Slider>
         </div>
+    )
+}
+
+type PropertyTypeProps = {
+    type: PropertyTypeType;
+}
+
+type PropertyTypeType = {
+    id: string;
+    propertyType: string;
+    thumbnailImg: string;
+    description: string;
+    count: number;
+}
+
+const PropertyType: React.FC<PropertyTypeProps> = ({ type, children }) => {
+    return (
+        <VStack alignItems="start" p="4">
+            <ChakraLink as={Link} to={'/rooms?typeId=' + type.id}>
+                <Tooltip hasArrow placement="top" aria-label={"tooltips"} label={type.description} openDelay={500}>
+                    <Box>
+                        <Box maxW="sm" maxH="sm" minH="100px">
+                            <Image width="inherit" height="inherit" src={type.thumbnailImg} objectFit="cover"></Image>
+                        </Box>
+
+                        <Box
+                            mt="1"
+                            fontWeight="semibold"
+                            as="h4"
+                            lineHeight="tight"
+                            isTruncated
+                        >
+                            {type.propertyType}
+                        </Box>
+                    </Box>
+                </Tooltip>
+            </ChakraLink>
+            <Box color="gray.500" fontSize="md">
+                {type.count + " " + type.propertyType + ""}
+            </Box>
+        </VStack>
     )
 }
 

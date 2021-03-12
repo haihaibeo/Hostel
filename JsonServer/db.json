@@ -1,0 +1,72 @@
+{
+    "cities": [
+        {
+            "cityId": "1",
+            "cityName": "Ha Noiiii",
+            "countryId": "1",
+            "countryName": null
+        },
+        {
+            "cityId": "2",
+            "cityName": "Nha Trang",
+            "countryId": "1",
+            "countryName": null
+        },
+        {
+            "cityId": "3",
+            "cityName": "Moscow",
+            "countryId": "2",
+            "countryName": null
+        },
+        {
+            "cityId": "4",
+            "cityName": "Ivanovo",
+            "countryId": "2",
+            "countryName": null
+        }
+    ],
+    "propertyTypes": [
+        {
+            "id": "1",
+            "propertyType": "Apartment",
+            "description": "Rent yourself a whole apartment",
+            "thumbnailImg": "https://picsum.photos/id/1005/400/400",
+            "count": 20
+        },
+        {
+            "id": "2",
+            "propertyType": "Room",
+            "description": "A Comfy room",
+            "thumbnailImg": "https://picsum.photos/id/1008/400/400",
+            "count": 20
+        },
+        {
+            "id": "3",
+            "propertyType": "House",
+            "description": "Be chill your house",
+            "thumbnailImg": "https://picsum.photos/id/1029/400/400",
+            "count": 20
+        },
+        {
+            "id": "4",
+            "propertyType": "Share Room",
+            "description": "on a budget?",
+            "thumbnailImg": "https://picsum.photos/id/1047/400/400",
+            "count": 20
+        },
+        {
+            "id": "5",
+            "propertyType": "Resort",
+            "description": "Gotta be a beautiful weekend",
+            "thumbnailImg": "https://picsum.photos/id/1045/400/400",
+            "count": 20
+        },
+        {
+            "id": "6",
+            "propertyType": "Hostel",
+            "description": "On holiday",
+            "thumbnailImg": "https://picsum.photos/id/1048/400/400",
+            "count": 20
+        }
+    ]
+}

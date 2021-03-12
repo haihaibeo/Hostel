@@ -22,7 +22,7 @@ type RoomCardProps = {
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, children }) => {
     return (
-        <Link to={"/room/" + room.id}>
+        <Link to={"/rooms/" + room.id}>
             <Box overflow="hidden" borderWidth="1px" borderRadius="lg">
                 <Image src={room.thumbnailUrl} alt={room.thumbnailAlt} />
                 <Box p="4">
@@ -30,9 +30,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, children }) => {
                         <Badge borderRadius="full" px="2" colorScheme="teal">
                             New
                         </Badge>
-                        {room.services.map(s => {
+                        {room.services.map((s, key) => {
                             return (
                                 <Box
+                                    key={key}
                                     color="gray.500"
                                     fontWeight="semibold"
                                     letterSpacing="wide"
@@ -68,7 +69,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, children }) => {
 
                         <Box d="flex" alignItems="center">
                             {Array(5).fill("").map((_, i) => {
-                                return (i < room.totalReview - 1 ? <BsStarFill colorRendering="teal.400" /> : <BsStar />)
+                                return (i < room.totalReview - 1 ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
                             })}
                         </Box>
                     </Box>
