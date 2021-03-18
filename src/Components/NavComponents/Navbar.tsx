@@ -1,12 +1,14 @@
 import React from 'react';
-import { Box, Button, Center, Flex, Heading, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useDisclosure } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, HStack, Spacer } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
 import { Link } from 'react-router-dom';
-import Authentication from '../Authentication';
+import LoginButton from '../LoginButton';
+import RegisterButton from '../RegisterButton';
+import { AuthContext } from '../../Contexts/AuthContext';
 
 const Navbar = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const auth = React.useContext(AuthContext);
 
     return (
         <Box marginBottom={["5%"]}>
@@ -22,24 +24,10 @@ const Navbar = () => {
                 <Spacer />
                 <HStack spacing={4}>
                     <ColorModeSwitcher />
-                    <Button variant="ghost" onClick={onOpen}>Login</Button>
-                    <Button variant="solid" onClick={onOpen}>Register</Button>
+                    {auth.user === undefined && <LoginButton></LoginButton>}
+                    <RegisterButton></RegisterButton>
                 </HStack>
             </Flex>
-
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent minW="40%">
-                    <ModalHeader alignSelf="center">Authentication</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Box w="100%">
-                            <Authentication></Authentication>
-                        </Box>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
-
         </Box>
     )
 }

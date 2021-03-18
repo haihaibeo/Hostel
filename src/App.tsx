@@ -15,6 +15,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Footer from "./Components/NavComponents/Footer";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { AuthProvider } from "./Contexts/AuthContext";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
@@ -33,14 +34,16 @@ export const App = () => (
     <ChakraProvider theme={myTheme}>
       <QueryClientProvider client={queryClient}>
         <Box d="flex" flexDir="column" minH="100vh">
-          <Box flex="1" >
-            <Switch>
-              <Route exact path="/" component={HomePage} />
-              <Route exact path="/rooms/:slug" component={SingleRoom} />
-              <Route exact path="/rooms/" component={RoomsPage} />
-              <Route component={ErrorPage} />
-            </Switch>
-          </Box>
+          <AuthProvider>
+            <Box flex="1" >
+              <Switch>
+                <Route exact path="/" component={HomePage} />
+                <Route exact path="/rooms/:slug" component={SingleRoom} />
+                <Route exact path="/rooms/" component={RoomsPage} />
+                <Route component={ErrorPage} />
+              </Switch>
+            </Box>
+          </AuthProvider>
           <Box flexShrink={0}>
             <Footer />
           </Box>

@@ -38,10 +38,8 @@ type BookingInfo = {
     roomQuant: number;
 }
 
-const GetRoomById = (id: string) => {
-}
-
-const SingleRoom: React.FC = () => {
+const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
+    room = defaultRoom;
     const { slug } = useParams<SlugProps>();
     const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ adult: 1, children: 0, roomQuant: 1 });
     const [owner, setOwner] = React.useState<OwnerInfo>();
@@ -66,8 +64,6 @@ const SingleRoom: React.FC = () => {
             roomQuant: room
         }));
     }
-
-    const room = defaultRoom;
 
     return (
         <Box mx="10%" mt="5">

@@ -17,3 +17,17 @@ type RoomBadge = {
     description: string;
     icon?: any;
 }
+
+type Comment = {
+    id: string;
+    commentUserId: string;
+    comment: string;
+    datetime: Date;
+    belongToCommentId?: string;
+}
+
+type LoginRequest = {
+    email: string;
+    password: string;
+    remember?: boolean;
+}

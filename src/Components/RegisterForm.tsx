@@ -1,5 +1,4 @@
-import { Box, Button, Collapse, FormControl, HStack, Input, InputGroup, PinInput, PinInputField, Select, VStack } from '@chakra-ui/react';
-import { stat } from 'fs';
+import { Box, Button, Collapse, FormControl, HStack, Input, PinInput, PinInputField, Select, VStack } from '@chakra-ui/react';
 import React from 'react'
 import { FaArrowRight } from 'react-icons/fa';
 
@@ -21,13 +20,13 @@ type FormState = {
     password?: string;
 }
 
-type AuthenticationState = {
+type RegisterState = {
     form?: FormState;
     show: "none" | "pin" | "detail"
     isLoading?: boolean;
 }
 
-const reducer = (state: AuthenticationState, action: ActionType): AuthenticationState => {
+const reducer = (state: RegisterState, action: ActionType): RegisterState => {
     switch (action.type) {
         case "ChangeInput":
             return {
@@ -90,13 +89,13 @@ const CheckPin = (pin: string) => {
     })
 }
 
-const initialState: AuthenticationState = {
+const initialState: RegisterState = {
     form: {},
     isLoading: false,
     show: "none"
 }
 
-const Authentication: React.FC = ({ }) => {
+const RegisterForm: React.FC = ({ children }) => {
     const [countries, setCountries] = React.useState<string[]>();
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
@@ -180,4 +179,4 @@ const defaultCountries: string[] = [
     "Russia", "Vietnam"
 ]
 
-export default Authentication;
+export default RegisterForm;
