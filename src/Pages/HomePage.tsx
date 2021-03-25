@@ -5,16 +5,16 @@ import { Box, DarkMode } from "@chakra-ui/react"
 import BG from "../Images/HomeBG.webp";
 import Navbar from '../Components/NavComponents/Navbar';
 
-const px = "10%";
 
 const HomePage = () => {
+    const px = "10%";
     return (
         <Box>
             <Box minH={["50vh", "75vh", "85vh"]} style={{ background: "url('" + BG + "') center/cover no-repeat" }}>
                 <Box px={px} pt="5">
                     <Navbar></Navbar>
                     <SearchBar />
-                    <Box as="h1" fontFamily="mono" opacity="0.5" fontWeight="bold" fontSize={["3xl", "4xl", "6xl", "8xl"]}
+                    <Box as="h1" fontFamily="mono" opacity="0.5" textShadow="gray 2px 2px 2px" color="white" fontWeight="bold" fontSize={["3xl", "4xl", "6xl", "8xl"]}
                         position="relative" mt={["5vh", "10vh", "20vh", "30vh"]}>EXPLORE AROUND</Box>
                 </Box>
             </Box>

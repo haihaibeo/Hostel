@@ -5,6 +5,7 @@ import Slider, { Settings } from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { isError, useQuery } from 'react-query';
+import { API_URL } from '../../App';
 
 var settings: Settings = {
     dots: true,
@@ -43,15 +44,13 @@ var settings: Settings = {
 };
 
 const fetchPropertyTypes = async () => {
-    const url = "http://localhost:44343"
-    const res = await fetch(url + "/api/propertytypes");
+    const res = await fetch(API_URL + "/api/propertytypes");
     const data: PropertyTypeType[] = await res.json();
     return data;
 }
 
 const PropertyTypeList = () => {
     const { data, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes);
-    console.log(data);
 
     if (isError) return <Box>Something's wrong</Box>
     return (

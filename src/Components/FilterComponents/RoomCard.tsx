@@ -3,19 +3,6 @@ import React from 'react';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 
-const defaultRoom: RoomCardType = {
-    id: "random-id-12321",
-    name: "Crystal palace",
-    thumbnailUrl: "https://bit.ly/2Z4KKcF",
-    thumbnailAlt: "rear view house with pool",
-    description: "Best place in town",
-    location: "Dark side, the moon",
-    totalReview: 4,
-    totalStar: 23,
-    formattedPrice: "2021.00$",
-    services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
-}
-
 type RoomCardProps = {
     room: RoomCardType;
 }

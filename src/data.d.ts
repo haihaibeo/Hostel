@@ -2,7 +2,7 @@ type RoomCardType = {
     id: string;
     name: string;
     thumbnailUrl: string;
-    thumbnailAlt: string;
+    thumbnailAlt?: string;
     description: string;
     location: string;
     totalReview: number;
@@ -27,7 +27,7 @@ type Comment = {
 }
 
 type LoginRequest = {
-    email: string;
-    password: string;
+    email?: string;
+    password?: string;
     remember?: boolean;
 }

@@ -1,3 +1,4 @@
+import { useToast } from '@chakra-ui/toast';
 import React from 'react';
 
 type LoginResponse = {
@@ -9,7 +10,8 @@ type LoginResponse = {
 
 type AuthContextStates = {
     loginAsync: (request: LoginRequest) => Promise<void>;
-    registerAsync?: () => Promise<void>
+    logoutAsync: () => Promise<void>;
+    registerAsync?: () => Promise<void>;
     user?: LoginResponse;
     isLoading: boolean;
 }
@@ -24,6 +26,7 @@ const loginAsync = async (request: LoginRequest) => {
         userId: "123412324"
     }
     await new Promise(resolve => setTimeout(resolve, 2000));
+    localStorage.setItem("user", JSON.stringify(dumb));
     return dumb;
     // request.email = request.email.trim();
     // if (request.remember === undefined) request.remember = false;
@@ -42,17 +45,45 @@ const loginAsync = async (request: LoginRequest) => {
 
 export const AuthProvider: React.FC = ({ children }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [user, setUser] = React.useState<LoginResponse>();
+    const [user, setUser] = React.useState<LoginResponse | undefined>(undefined);
+    const toast = useToast();
+
+    React.useEffect(() => {
+        const foundUser = localStorage.getItem("user");
+        if (foundUser) {
+            setUser(JSON.parse(foundUser) as LoginResponse);
+        }
+    }, [])
 
     const login = async ({ email, password, remember }: LoginRequest) => {
         setIsLoading(true);
         const data = await loginAsync({ email, password, remember });
         setUser(data);
         setIsLoading(false);
+        toast({
+            title: "Logged in successfully!",
+            isClosable: true,
+            duration: 3000,
+            status: "success"
+        })
+    }
+
+    const logoutAsync = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setUser(undefined);
+        localStorage.removeItem("user");
+        toast({
+            title: "Logged out successfully!",
+            isClosable: true,
+            duration: 3000,
+            status: "success"
+        })
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // window.location.reload();
     }
 
     return (
-        <AuthContext.Provider value={{ loginAsync: login, isLoading: isLoading, user: user }}>
+        <AuthContext.Provider value={{ loginAsync: login, logoutAsync: logoutAsync, isLoading: isLoading, user: user }}>
             {children}
         </AuthContext.Provider>
     )

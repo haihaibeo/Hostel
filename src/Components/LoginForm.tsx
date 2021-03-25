@@ -1,4 +1,4 @@
-import { Box, FormControl, FormLabel, Input, Button, Checkbox } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, Button, Checkbox, FormErrorMessage } from '@chakra-ui/react';
 import React from 'react'
 import { FaArrowRight } from 'react-icons/fa';
 import { AuthContext } from '../Contexts/AuthContext';
@@ -8,14 +8,15 @@ type LoginFormProps = {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ initRef }) => {
+    const submitRef = React.useRef<any>();
+
     const [loginForm, setLoginForm] = React.useState<LoginRequest>({
-        email: "",
-        password: "",
         remember: false
     });
     const authContext = React.useContext(AuthContext);
 
     const handleLogin = () => {
+        submitRef.current.click();
         authContext.loginAsync(loginForm);
     }
 
@@ -23,16 +24,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef }) => {
         <Box d="flex" flexDir="column">
             <FormControl isRequired>
                 <FormLabel>Email</FormLabel>
-                <Input placeholder="Enter your email" ref={initRef} variant="filled" size="lg"></Input>
+                <Input placeholder="Enter your email" ref={initRef} variant="filled" size="lg" type="email"
+                    value={loginForm.email} required
+                    onChange={(e) => setLoginForm(s => ({
+                        ...s,
+                        email: e.target.value
+                    }))}></Input>
             </FormControl>
             <FormControl my="2" isRequired>
                 <FormLabel>Password</FormLabel>
-                <Input placeholder="Enter your password" variant="filled" size="lg"></Input>
+                <Input placeholder="Enter your password" variant="filled" size="lg" type="password"
+                    value={loginForm.password} required minLength={1} isRequired
+                    onChange={(e) => setLoginForm(s => ({
+                        ...s,
+                        password: e.target.value
+                    }))}></Input>
+                <FormErrorMessage>Wong</FormErrorMessage>
             </FormControl>
             <FormControl>
-                <Checkbox size="lg">Remember me</Checkbox>
+                <Checkbox size="lg" checked={loginForm.remember}
+                    onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>
+                    Remember me
+                    </Checkbox>
             </FormControl>
-            <Button my="3" w="30%" rounded="full" type="submit" alignSelf="center" title="Login"
+
+            <Input d="none" type="submit" ref={submitRef}></Input>
+
+            <Button my="3" w="30%" rounded="full" type="button" alignSelf="center" title="Login"
                 isLoading={authContext.isLoading}
                 onClick={handleLogin}>
                 <FaArrowRight />

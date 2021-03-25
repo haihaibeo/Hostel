@@ -68,5 +68,43 @@
             "thumbnailImg": "https://picsum.photos/id/1048/400/400",
             "count": 20
         }
+    ],
+    "properties": [
+        {
+            "id": "1",
+            "name": "Property1",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=1",
+            "description": "Property Description 1",
+            "location": "Ha Noi",
+            "totalReview": 0,
+            "totalStar": 0,
+            "formattedPrice": 100,
+            "services": [
+                "PetAllowed",
+                "Wifi"
+            ]
+        },
+        {
+            "id": "2",
+            "name": "Property2",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=4",
+            "description": "Description 2",
+            "location": "Nha Trang",
+            "totalReview": 0,
+            "totalStar": 0,
+            "formattedPrice": 0,
+            "services": []
+        },
+        {
+            "id": "3",
+            "name": "My property 3",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=5",
+            "description": "Description 3333333333333333333333",
+            "location": "Ha Noi",
+            "totalReview": 0,
+            "totalStar": 0,
+            "formattedPrice": 0,
+            "services": []
+        }
     ]
 }

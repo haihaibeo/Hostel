@@ -2,7 +2,12 @@ import { SimpleGrid } from '@chakra-ui/react'
 import React from 'react'
 import RoomCard from './RoomCard'
 
-const RoomCardList = () => {
+type RoomCardListProps = {
+    rooms: RoomCardType[];
+}
+
+const RoomCardList: React.FC<RoomCardListProps> = ({ rooms }) => {
+    rooms = defaultRooms;
     return (
         <SimpleGrid spacing="8" columns={[1, 1, 2, 2, 3]}>
             {rooms.map((r, index) => {
@@ -27,12 +32,12 @@ const defaultRoom: RoomCardType = {
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
 }
 
-const rooms: Array<RoomCardType> = [
+const defaultRooms: Array<RoomCardType> = [
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=4" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=5" },
 ]
-
+const str = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat vel nemo rem totam modi officiis corporis accusamus consectetur, soluta optio, quas maiores!"
 export default RoomCardList;

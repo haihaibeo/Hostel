@@ -1,5 +1,5 @@
 {
     "scripts": {
-        "startDb": "json-server --watch db.json --port 44343 --routes routes.json"
+        "startDb": "json-server --watch db.json --port 44344 --routes routes.json"
     }
 }

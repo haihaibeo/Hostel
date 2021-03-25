@@ -29,6 +29,8 @@ const myTheme = extendTheme({
 
 const queryClient = new QueryClient();
 
+export const API_URL = "http://localhost:44344";
+
 export const App = () => (
   <HashRouter basename="/">
     <ChakraProvider theme={myTheme}>
@@ -52,4 +54,4 @@ export const App = () => (
       </QueryClientProvider>
     </ChakraProvider>
   </HashRouter>
-)
+);

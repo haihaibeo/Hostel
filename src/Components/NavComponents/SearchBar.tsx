@@ -3,6 +3,7 @@ import axios from 'axios';
 import React from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { useQuery } from 'react-query';
+import { API_URL } from '../../App';
 // import 'react-day-picker/lib/style.css';
 import PickRangeDay from './PickRangeDay';
 import PopDetail from './PopDetail';
@@ -30,8 +31,6 @@ const defaultValue: SearchBarProps = {
     bedRoom: 1
 }
 
-const URL = "http://localhost:44343";
-
 const fetchCities = async () => {
     // const res = await axios({
     //     method: "GET",
@@ -39,7 +38,7 @@ const fetchCities = async () => {
     //     timeout: 5000
     // });
     // return res;
-    const res = await fetch(URL + "/api/cities");
+    const res = await fetch(API_URL + "/api/cities");
     const data = res.json();
     return data;
 }
