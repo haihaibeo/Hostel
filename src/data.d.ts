@@ -7,7 +7,7 @@ type RoomCardType = {
     location: string;
     totalReview: number;
     totalStar: number;
-    formattedPrice: string;
+    formattedPrice: number;
     services: Array<string>;
 }
 

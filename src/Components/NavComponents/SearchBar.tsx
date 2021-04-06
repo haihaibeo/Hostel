@@ -47,7 +47,6 @@ const SearchBar = () => {
     const { data: cities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities);
     // console.log(cities);
     const [form, setForm] = React.useState<SearchBarProps>(defaultValue);
-    const cityRef = React.useRef<HTMLInputElement>(null);
 
     // if (isLoading) return <>loading...</>;
 
@@ -74,7 +73,7 @@ const SearchBar = () => {
             <Flex display={{ lg: "flex" }} alignItems="center">
                 <InputGroup>
                     <InputLeftElement pointerEvents="none" children={<BsSearch />} />
-                    <Input list="datalist-cities" placeholder="Country" size="lg" borderRadius="0" ref={cityRef} />
+                    <Input list="datalist-cities" placeholder="Country" size="lg" borderRadius="0" />
                     {isLoading ? <InputRightElement children={<Spinner alignSelf="center" />}></InputRightElement> :
                         <datalist id="datalist-cities" style={{}}>
                             <Box>
@@ -93,7 +92,10 @@ const SearchBar = () => {
                 </InputGroup>
                 <Popover closeOnBlur={true}>
                     <PopoverTrigger>
-                        <Button variant="outline" w={["100%", "100%", "100%", "150%"]} size="lg" _focusVisible={{ border: "0" }} borderRadius="0" px="2">{form?.from?.toDateString() || "From"} - {form?.to?.toDateString() || "To"}</Button>
+                        <Button variant="outline" w={["100%", "100%", "100%", "150%"]}
+                            size="lg" _focusVisible={{ border: "0" }} borderRadius="0" px="2">
+                            {form?.from?.toLocaleDateString() || "From"} - {form?.to?.toLocaleDateString() || "To"}
+                        </Button>
                     </PopoverTrigger>
                     <PopoverContent flexWrap="nowrap" alignItems="center" w={["100%", "100%", "200%", "200%"]} left={["0%", "0%", "-50%", "-50%"]} borderRadius="0" bgColor="rgba(66, 153, 225, 0.5)">
                         <PickRangeDay updateDate={UpdateDate} />

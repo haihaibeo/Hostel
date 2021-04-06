@@ -1,7 +1,9 @@
 import { useToast } from '@chakra-ui/toast';
+import axios from 'axios';
 import React from 'react';
+import { API_URL } from '../App';
 
-type LoginResponse = {
+type UserResponse = {
     userId: string;
     name: string;
     email: string;
@@ -9,64 +11,26 @@ type LoginResponse = {
 }
 
 type AuthContextStates = {
-    loginAsync: (request: LoginRequest) => Promise<void>;
+    loginAsync: (request: LoginRequest) => any
     logoutAsync: () => Promise<void>;
     registerAsync?: () => Promise<void>;
-    user?: LoginResponse;
+    user?: UserResponse;
     isLoading: boolean;
 }
 
 export const AuthContext = React.createContext<AuthContextStates>({} as AuthContextStates);
 
-const loginAsync = async (request: LoginRequest) => {
-    const dumb: LoginResponse = {
-        email: "mock@mail.com",
-        name: "Mock Name",
-        token: "long long long token",
-        userId: "123412324"
-    }
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    localStorage.setItem("user", JSON.stringify(dumb));
-    return dumb;
-    // request.email = request.email.trim();
-    // if (request.remember === undefined) request.remember = false;
-
-    // const response = await fetch("/api/user/authenticate", {
-    //     body: JSON.stringify({
-    //         "email": request.email,
-    //         "password": request.password,
-    //         "remember": request.remember
-    //     }),
-    //     method: "POST",
-    // })
-    // const data: LoginResponse = await response.json();
-    // return data;
-}
-
 export const AuthProvider: React.FC = ({ children }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [user, setUser] = React.useState<LoginResponse | undefined>(undefined);
+    const [user, setUser] = React.useState<UserResponse | undefined>(undefined);
     const toast = useToast();
 
     React.useEffect(() => {
         const foundUser = localStorage.getItem("user");
         if (foundUser) {
-            setUser(JSON.parse(foundUser) as LoginResponse);
+            setUser(JSON.parse(foundUser) as UserResponse);
         }
     }, [])
-
-    const login = async ({ email, password, remember }: LoginRequest) => {
-        setIsLoading(true);
-        const data = await loginAsync({ email, password, remember });
-        setUser(data);
-        setIsLoading(false);
-        toast({
-            title: "Logged in successfully!",
-            isClosable: true,
-            duration: 3000,
-            status: "success"
-        })
-    }
 
     const logoutAsync = async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -82,8 +46,40 @@ export const AuthProvider: React.FC = ({ children }) => {
         // window.location.reload();
     }
 
+    const loginAsync = async (request: LoginRequest) => {
+        console.log(request);
+        setIsLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const dumb: UserResponse = {
+            email: "mock@mail.com",
+            name: "Mock Name",
+            token: "long long long token",
+            userId: "123412324"
+        }
+        localStorage.setItem("user", JSON.stringify(dumb));
+        setIsLoading(false);
+        return dumb;
+        // const response = axios.post(API_URL + "/api/user/authenticate", {
+        //     "email": request.email,
+        //     "password": request.password
+        // })
+
+        // response.then(d => {
+        //     if (d.status === 400) {
+        //         console.log("400")
+        //         return d;
+        //     }
+        //     setUser(d.data);
+        //     localStorage.setItem("user", JSON.stringify(d.data));
+        //     return response;
+        // })
+        //     .then(m => console.log(m))
+        //     .catch(error => console.log(error))
+        //     .finally(() => { setIsLoading(false) });
+    }
+
     return (
-        <AuthContext.Provider value={{ loginAsync: login, logoutAsync: logoutAsync, isLoading: isLoading, user: user }}>
+        <AuthContext.Provider value={{ loginAsync: loginAsync, logoutAsync: logoutAsync, isLoading: isLoading, user: user }}>
             {children}
         </AuthContext.Provider>
     )

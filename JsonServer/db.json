@@ -72,12 +72,12 @@
     "properties": [
         {
             "id": "1",
-            "name": "Property1",
+            "name": "Ipsum donor",
             "thumbnailUrl": "https://picsum.photos/1100/1000?random=1",
-            "description": "Property Description 1",
+            "description": "Lorem amet consectetur adipisicing elit",
             "location": "Ha Noi",
-            "totalReview": 0,
-            "totalStar": 0,
+            "totalReview": 3,
+            "totalStar": 14,
             "formattedPrice": 100,
             "services": [
                 "PetAllowed",
@@ -86,24 +86,46 @@
         },
         {
             "id": "2",
-            "name": "Property2",
+            "name": "Lorem ipsum",
             "thumbnailUrl": "https://picsum.photos/1100/1000?random=4",
-            "description": "Description 2",
+            "description": "Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve",
             "location": "Nha Trang",
-            "totalReview": 0,
-            "totalStar": 0,
-            "formattedPrice": 0,
+            "totalReview": 5,
+            "totalStar": 11,
+            "formattedPrice": 200,
             "services": []
         },
         {
             "id": "3",
-            "name": "My property 3",
-            "thumbnailUrl": "https://picsum.photos/1100/1000?random=5",
-            "description": "Description 3333333333333333333333",
+            "name": "Lorem ipsum",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=3",
+            "description": "Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve",
             "location": "Ha Noi",
-            "totalReview": 0,
-            "totalStar": 0,
-            "formattedPrice": 0,
+            "totalReview": 5,
+            "totalStar": 21,
+            "formattedPrice": 200,
+            "services": []
+        },
+        {
+            "id": "4",
+            "name": "Lorem ipsum",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=7",
+            "description": "Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve",
+            "location": "Ha Noi",
+            "totalReview": 5,
+            "totalStar": 21,
+            "formattedPrice": 200,
+            "services": []
+        },
+        {
+            "id": "5",
+            "name": "Lorem ipsum",
+            "thumbnailUrl": "https://picsum.photos/1100/1000?random=8",
+            "description": "Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat ve",
+            "location": "Nha Trang",
+            "totalReview": 5,
+            "totalStar": 21,
+            "formattedPrice": 200,
             "services": []
         }
     ]

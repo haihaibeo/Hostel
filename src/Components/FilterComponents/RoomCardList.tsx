@@ -7,12 +7,12 @@ type RoomCardListProps = {
 }
 
 const RoomCardList: React.FC<RoomCardListProps> = ({ rooms }) => {
-    rooms = defaultRooms;
+    // rooms = defaultRooms;
     return (
-        <SimpleGrid spacing="8" columns={[1, 1, 2, 2, 3]}>
+        <SimpleGrid spacing="8" columns={[1, 1, 1, 2, 3]}>
             {rooms.map((r, index) => {
                 return (
-                    <RoomCard key={index} room={r}></RoomCard>
+                    <RoomCard key={r.id} room={r} isSaved={false}></RoomCard>
                 )
             })}
         </SimpleGrid>
@@ -24,11 +24,11 @@ const defaultRoom: RoomCardType = {
     name: "Crystal palace",
     thumbnailUrl: "https://picsum.photos/1100/1000?random=1",
     thumbnailAlt: "rear view house with pool",
-    description: "Best place in town",
+    description: "Best place in townBest place in townBest place in townBest ",
     location: "Dark side, the moon",
     totalReview: 4,
     totalStar: 23,
-    formattedPrice: "2021.00$",
+    formattedPrice: 2021.00,
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
 }
 

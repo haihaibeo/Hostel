@@ -66,10 +66,8 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
     }
 
     return (
-        <Box mx="10%" mt="5">
-            <Navbar></Navbar>
+        <Box>
             <Divider my="5" />
-
             {/* title */}
             <Box as="h2" fontSize="3xl" fontWeight="semibold">{room.name}</Box>
 
@@ -79,7 +77,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                     <Box d="flex" flexDir={{ base: "column", sm: "row" }}>
                         <Box d="flex" flexDir={{ base: "row" }}>
                             {Array(5).fill("").map((_, i) => {
-                                return (i < room.totalReview - 1 ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
+                                return (i < Math.round(room.totalStar / room.totalReview) ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
                             })}
                         </Box>
                         <Box as="span" ml="2" color="gray.500">{room.totalReview} reviews</Box>
@@ -103,11 +101,6 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                 <Grid gap="2" h="40%" maxH="450px" objectFit="cover"
                     templateRows="repeat(2, 1fr)"
                     templateColumns="repeat(4, 1fr)">
-
-                    {/* <GridItem colSpan={2} rowSpan={2} overflow="hidden" >
-                        <Image src={room.images[0]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem> */}
-
                     {room.images.map((image, i) => {
                         return (
                             <GridItem key={i} colSpan={i === 0 ? 2 : 1} rowSpan={i === 0 ? 2 : 1} overflow="hidden" >
@@ -115,19 +108,6 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                             </GridItem>
                         )
                     })}
-
-                    {/* <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
-                        <Image src={room.images[1]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem>
-                    <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
-                        <Image src={room.images[2]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem>
-                    <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
-                        <Image src={room.images[3]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem>
-                    <GridItem colSpan={1} rowSpan={1} overflow="hidden" >
-                        <Image src={room.images[4]} h="auto" height="100%" w="100%" objectFit="cover"></Image>
-                    </GridItem> */}
                 </Grid>
             </Box>
 
@@ -139,7 +119,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                     display="inline-flex" flexDir="column" zIndex={1} borderWidth="thin"
                     p="4" alignContent="center" justifyContent="center">
                     <Flex alignItems="baseline">
-                        <Box as="h2" fontFamily="mono" fontSize="3xl" fontWeight="semibold">{room.formattedPrice}
+                        <Box as="h2" fontFamily="mono" fontSize="3xl" fontWeight="semibold">{room.formattedPrice + "$"}
                         </Box>
                         <Box as="span" color="gray.500">
                             /per night
@@ -147,7 +127,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                         <Spacer />
                         <Box d="flex" alignItems="center">
                             {Array(5).fill("").map((_, i) => {
-                                return (i < room.totalReview - 1 ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
+                                return (i < Math.round(room.totalStar / room.totalReview) ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
                             })}
                         </Box>
                     </Flex>
@@ -160,13 +140,13 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                                         size="lg" w="100%"
                                         _focusVisible={{ border: "0" }}
                                         borderRadius="0">
-                                        {bookInfo?.bookFromDate?.toDateString() || "From"}
+                                        {bookInfo?.bookFromDate?.toLocaleDateString() || "From"}
                                     </Button>
                                     <Button variant="outline" borderTopRightRadius="lg"
                                         size="lg" w="100%"
                                         _focusVisible={{ border: "0" }}
                                         borderRadius="0">
-                                        {bookInfo?.bookToDate?.toDateString() || "To"}
+                                        {bookInfo?.bookToDate?.toLocaleDateString() || "To"}
                                     </Button>
                                 </HStack>
                             </PopoverTrigger>
@@ -251,8 +231,8 @@ const defaultRoom: RoomType = {
     description: "Best place in town",
     location: "Dark side, the moon",
     totalReview: 4,
-    totalStar: 23,
-    formattedPrice: "2021.00$",
+    totalStar: 19,
+    formattedPrice: 2021.00,
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"],
     roomBadges: badges,
 }

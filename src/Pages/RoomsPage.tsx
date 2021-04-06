@@ -30,8 +30,7 @@ const RoomsPage = () => {
     if (isLoading) return <>Loading...</>
 
     return (
-        <Box mx="10%" mt="5">
-            <Navbar></Navbar>
+        <Box>
             <SearchBar></SearchBar>
             <Divider my="10" />
             <Box as="h3" mb="5" fontSize="4xl" fontWeight="bold" >Find place that fits you most...</Box>
