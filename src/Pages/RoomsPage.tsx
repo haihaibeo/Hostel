@@ -1,20 +1,12 @@
 import { Box, Divider } from '@chakra-ui/react';
-import axios from 'axios';
 import React from 'react'
 import { useQuery } from 'react-query';
-import { useLocation, useParams } from 'react-router-dom';
-import { API_URL } from '../App';
+import { useLocation } from 'react-router-dom';
+import { fetchPropertyView } from '../API';
 import RoomCardList from '../Components/FilterComponents/RoomCardList';
-import Navbar from '../Components/NavComponents/Navbar';
 import SearchBar from '../Components/NavComponents/SearchBar';
 
-const fetchPropertyView = (typeId: string | null) => {
-    let URI = `/api/properties`;
-    if (typeId) {
-        URI += `?typeId=${typeId}`;
-    }
-    return axios.get(API_URL + URI);
-}
+
 
 const RoomsPage = () => {
     const queryStr = new URLSearchParams(useLocation().search);
@@ -22,7 +14,6 @@ const RoomsPage = () => {
 
     const { data, isLoading, error } = useQuery("propertyView", () => fetchPropertyView(queryTypeId))
 
-    console.log(data?.data);
     if (error) {
         return <>Error</>
     }

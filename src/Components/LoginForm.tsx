@@ -19,8 +19,6 @@ function validateEmail(email: string | undefined) {
 const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
     const history = useHistory();
 
-    const submitRef = React.useRef<any>();
-
     const [loginForm, setLoginForm] = React.useState<LoginRequest>({
         remember: false
     });
@@ -50,7 +48,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
     }
 
     return (
-        <FormControl isRequired isDisabled={authContext.isLoading} d="flex" flexDir="column">
+        <FormControl isRequired isDisabled={authContext.isLoading} isInvalid={emailError || passwordError} d="flex" flexDir="column">
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input placeholder="Enter your email" id="email" isInvalid={emailError} ref={initRef} variant="filled" size="lg" type="email"
                 value={loginForm.email} isRequired
@@ -58,7 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
                     ...s,
                     email: e.target.value.trim()
                 }))}></Input>
-            <FormErrorMessage>{emailError}</FormErrorMessage>
+            <FormErrorMessage>{"Email not correct"}</FormErrorMessage>
 
             <FormLabel htmlFor="password" my="2">Password</FormLabel>
             <Input placeholder="Enter your password" id="password" isInvalid={passwordError} variant="filled" size="lg" type="password"
@@ -67,7 +65,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
                     ...s,
                     password: e.target.value
                 }))}></Input>
-            <FormErrorMessage>{passwordError}</FormErrorMessage>
 
             <Checkbox size="lg" checked={loginForm.remember} mt="2"
                 onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>

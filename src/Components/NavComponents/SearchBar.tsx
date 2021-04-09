@@ -3,7 +3,7 @@ import axios from 'axios';
 import React from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { useQuery } from 'react-query';
-import { API_URL } from '../../App';
+import { fetchCities } from '../../API';
 // import 'react-day-picker/lib/style.css';
 import PickRangeDay from './PickRangeDay';
 import PopDetail from './PopDetail';
@@ -31,17 +31,7 @@ const defaultValue: SearchBarProps = {
     bedRoom: 1
 }
 
-const fetchCities = async () => {
-    // const res = await axios({
-    //     method: "GET",
-    //     url: URL + "api/city",
-    //     timeout: 5000
-    // });
-    // return res;
-    const res = await fetch(API_URL + "/api/cities");
-    const data = res.json();
-    return data;
-}
+
 
 const SearchBar = () => {
     const { data: cities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities);
@@ -97,7 +87,9 @@ const SearchBar = () => {
                             {form?.from?.toLocaleDateString() || "From"} - {form?.to?.toLocaleDateString() || "To"}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent flexWrap="nowrap" alignItems="center" w={["100%", "100%", "200%", "200%"]} left={["0%", "0%", "-50%", "-50%"]} borderRadius="0" bgColor="rgba(66, 153, 225, 0.5)">
+                    <PopoverContent
+                        flexWrap="nowrap" alignItems="center"
+                        w="550px" borderRadius="0" bgColor="rgba(66, 153, 225, 0.5)">
                         <PickRangeDay updateDate={UpdateDate} />
                     </PopoverContent>
                 </Popover>

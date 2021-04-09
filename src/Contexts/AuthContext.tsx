@@ -1,14 +1,9 @@
 import { useToast } from '@chakra-ui/toast';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import React from 'react';
-import { API_URL } from '../App';
+import { useMutation } from 'react-query';
+import { API_URL, authenticate } from '../API';
 
-type UserResponse = {
-    userId: string;
-    name: string;
-    email: string;
-    token: string;
-}
 
 type AuthContextStates = {
     loginAsync: (request: LoginRequest) => any
@@ -24,6 +19,16 @@ export const AuthProvider: React.FC = ({ children }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [user, setUser] = React.useState<UserResponse | undefined>(undefined);
     const toast = useToast();
+
+    const mutateLogin = useMutation<AxiosResponse<UserResponse>, any, LoginRequest>(authenticate, {
+        onSuccess: (res) => {
+            setUser(res.data);
+            localStorage.setItem("user", JSON.stringify(res.data));
+            toast({ description: "Logged in successfully", status: "success", duration: 3000 });
+        },
+        onError: (res) => { toast({ description: res.data.message, status: "error", duration: 3000 }) },
+        onSettled: () => setIsLoading(false)
+    })
 
     React.useEffect(() => {
         const foundUser = localStorage.getItem("user");
@@ -50,36 +55,26 @@ export const AuthProvider: React.FC = ({ children }) => {
         console.log(request);
         setIsLoading(true);
         await new Promise(resolve => setTimeout(resolve, 2000));
-        const dumb: UserResponse = {
-            email: "mock@mail.com",
-            name: "Mock Name",
-            token: "long long long token",
-            userId: "123412324"
-        }
-        localStorage.setItem("user", JSON.stringify(dumb));
-        setIsLoading(false);
-        return dumb;
+        mutateLogin.mutate(request);
+        // const dumb: UserResponse = {
+        //     email: "mock@mail.com",
+        //     name: "Mock Name",
+        //     token: "long long long token",
+        //     userId: "123412324"
+        // }
+        // localStorage.setItem("user", JSON.stringify(dumb));
+        // setIsLoading(false);
+        // return dumb;
+
         // const response = axios.post(API_URL + "/api/user/authenticate", {
         //     "email": request.email,
         //     "password": request.password
         // })
-
-        // response.then(d => {
-        //     if (d.status === 400) {
-        //         console.log("400")
-        //         return d;
-        //     }
-        //     setUser(d.data);
-        //     localStorage.setItem("user", JSON.stringify(d.data));
-        //     return response;
-        // })
-        //     .then(m => console.log(m))
-        //     .catch(error => console.log(error))
-        //     .finally(() => { setIsLoading(false) });
     }
 
     return (
         <AuthContext.Provider value={{ loginAsync: loginAsync, logoutAsync: logoutAsync, isLoading: isLoading, user: user }}>
+            {mutateLogin.isError && console.log(mutateLogin.error)}
             {children}
         </AuthContext.Provider>
     )

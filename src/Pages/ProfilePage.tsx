@@ -1,9 +1,8 @@
 import { Avatar, Box, Button, Divider, Icon, SimpleGrid, Spacer, VStack } from '@chakra-ui/react';
 import React from 'react'
 import { FaCheck, FaUserShield } from 'react-icons/fa';
-import { useQuery } from 'react-query';
 import { useLocation } from 'react-router';
-import { API_URL } from '../App';
+import { toggleLike } from '../API';
 import RoomCard from '../Components/FilterComponents/RoomCard';
 import { AuthContext } from '../Contexts/AuthContext';
 
@@ -50,7 +49,7 @@ const ProfilePage = () => {
             <Spacer />
 
             {/* RIGHT */}
-            <Box w={{ base: "100%", md: "65%" }} h="500" borderWidth="1px">
+            <Box w={{ base: "100%", md: "65%" }}>
                 {(view === "likes" || view === null) && <UserLikesProperties userToken={user?.token}></UserLikesProperties>}
                 {view === "notifications" && <Notifications></Notifications>}
             </Box>
@@ -64,15 +63,14 @@ type LikesProps = {
 
 const UserLikesProperties: React.FC<LikesProps> = ({ userToken, children }) => {
     const rooms: RoomCardType[] = defaultRooms;
-
-    const { data, error, isLoading } = useQuery("likes", () => {
-        fetch(API_URL + "/user/proplikes");
-    })
-
     return (
-        <SimpleGrid spacing="4" columns={[1, 2, 2, 3]}>
-            {rooms.map(r => <RoomCard room={r} key={r.id} isSaved={true} />)}
-        </SimpleGrid>);
+        <Box>
+            <Box as={"h1"} fontFamily={"heading"} fontWeight="bold" fontSize="4xl" mb="3">Rooms that you saved</Box>
+            <SimpleGrid spacing="4" columns={[1, 2, 2, 3]}>
+                {rooms.map(r => <RoomCard room={r} key={r.id} isSaved={true} />)}
+            </SimpleGrid>
+        </Box>
+    );
 }
 
 const Notifications: React.FC = () => {

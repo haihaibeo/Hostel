@@ -11,11 +11,26 @@ type RoomCardType = {
     services: Array<string>;
 }
 
+type UserResponse = {
+    userId: string;
+    name: string;
+    email: string;
+    token: string;
+}
+
 type RoomBadge = {
     id: string;
     title: string;
     description: string;
     icon?: any;
+}
+
+type PropertyTypeType = {
+    id: string;
+    propertyType: string;
+    thumbnailImg: string;
+    description: string;
+    count: number;
 }
 
 type Comment = {

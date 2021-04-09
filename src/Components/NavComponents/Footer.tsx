@@ -11,9 +11,11 @@ const Footer: React.FC<FooterProps> = ({ height }) => {
         <Box mt="10" mb="5">
             <Divider mb="5" boxShadow="lg" />
             <Center as="h4">
-                {"Proudly made with"}
+                {"Made with"}
                 <>&nbsp;</>
-                <BsHeartFill />
+                <Box as={"a"} href="" cursor="default">
+                    <BsHeartFill />
+                </Box>
                 <>&nbsp;</>
                 {"by"}
                 <>&nbsp;</>

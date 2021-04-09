@@ -1,13 +1,16 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar } from '@chakra-ui/react';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast } from '@chakra-ui/react';
 import { userInfo } from 'os';
 import React from 'react'
-import { BsStarFill, BsStar, BsHeart } from 'react-icons/bs';
-import { Link, useParams } from 'react-router-dom';
+import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
+import { useMutation, useQuery } from 'react-query';
+import { Link, Redirect, useParams } from 'react-router-dom';
+import { fetchProperty, toggleLike } from '../API';
 import Navbar from '../Components/NavComponents/Navbar';
 import PickRangeDay from '../Components/NavComponents/PickRangeDay';
 import PopDetail from '../Components/NavComponents/PopDetail';
 import SearchBar from '../Components/NavComponents/SearchBar';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
+import { AuthContext } from '../Contexts/AuthContext';
 
 type SlugProps = {
     slug: string;
@@ -16,6 +19,7 @@ type SlugProps = {
 interface RoomType extends RoomCardType {
     images: string[];
     roomIntroduction: string;
+    liked?: boolean;
     roomBadges?: RoomBadge[];
 }
 
@@ -40,9 +44,27 @@ type BookingInfo = {
 
 const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
     room = defaultRoom;
+    const auth = React.useContext(AuthContext);
     const { slug } = useParams<SlugProps>();
     const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ adult: 1, children: 0, roomQuant: 1 });
     const [owner, setOwner] = React.useState<OwnerInfo>();
+    const [didLike, setDidLike] = React.useState(room.liked);
+    const toast = useToast();
+
+    const { data } = useQuery(["property", slug], () => fetchProperty(slug));
+    console.log(data?.data);
+
+    const mutateLike = useMutation(toggleLike, {
+        onSuccess: (res) => {
+            setDidLike(res.data.liked);
+            toast({
+                description: res.data.liked ? "Saved room" : "Removed from wishlist",
+                status: "info",
+                duration: 1000
+            });
+        },
+        onError: (error) => console.log(error)
+    })
 
     React.useEffect(() => {
         setOwner(defaultOwner);
@@ -63,6 +85,18 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
             children: children,
             roomQuant: room
         }));
+    }
+
+    const handleLike = () => {
+        if (!auth.user) {
+            toast({
+                description: "Login is required",
+                status: "info",
+                duration: 1000
+            });
+            return;
+        }
+        mutateLike.mutate({ roomId: room.id, token: auth.user.token })
     }
 
     return (
@@ -93,7 +127,9 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
 
                 <Spacer />
 
-                <Button alignSelf="start" variant="ghost" size="sm" leftIcon={<BsHeart />}>Like</Button>
+                <Button alignSelf="start" variant="ghost" size="sm"
+                    onClick={() => handleLike()}
+                    leftIcon={!didLike ? <BsHeart /> : <BsHeartFill color="red" />}>Like</Button>
             </Box>
 
             {/* image display */}
@@ -150,7 +186,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                                     </Button>
                                 </HStack>
                             </PopoverTrigger>
-                            <PopoverContent flexWrap="nowrap" alignItems="center" w={["100%", "100%", "200%", "200%"]} left={["0%", "0%", "-50%", "-50%"]} borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
+                            <PopoverContent flexWrap="nowrap" alignItems="center" w="550px" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
                                 <PickRangeDay updateDate={updateDate} />
                             </PopoverContent>
                         </Popover>
@@ -220,7 +256,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
 const badges: RoomBadge[] = defaultRoomBadges;
 
 const defaultRoom: RoomType = {
-    id: "random-id-12321",
+    id: "1",
     name: "Crystal palace",
     thumbnailUrl: "https://bit.ly/2Z4KKcF",
     images: ["https://picsum.photos/1100/1000", "https://picsum.photos/700/1200",

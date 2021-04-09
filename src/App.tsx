@@ -33,7 +33,6 @@ const myTheme = extendTheme({
 
 const queryClient = new QueryClient();
 
-export const API_URL = "http://localhost:44344";
 
 export const App = () => (
   <HashRouter basename="/">
@@ -41,6 +40,7 @@ export const App = () => (
       <QueryClientProvider client={queryClient}>
         <Box d="flex" flexDir="column" minH="100vh">
           <AuthProvider>
+            <ScrollToTop />
             <Box flex="1">
               <Switch>
                 <Route exact path="/" component={HomePage} />
@@ -59,10 +59,10 @@ export const App = () => (
                 <Route component={ErrorPage} />
               </Switch>
             </Box>
+            <Box flexShrink={0}>
+              <Footer />
+            </Box>
           </AuthProvider>
-          <Box flexShrink={0}>
-            <Footer />
-          </Box>
         </Box>
 
       </QueryClientProvider>
@@ -103,4 +103,13 @@ const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       state: window.location
     }}></Redirect>
   </Route>)
+}
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname])
+
+  return null;
 }
