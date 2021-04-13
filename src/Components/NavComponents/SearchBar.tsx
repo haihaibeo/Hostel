@@ -34,7 +34,9 @@ const defaultValue: SearchBarProps = {
 
 
 const SearchBar = () => {
-    const { data: cities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities);
+    const { data: cities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
+        staleTime: 1000 * 60 * 10
+    });
     // console.log(cities);
     const [form, setForm] = React.useState<SearchBarProps>(defaultValue);
 
@@ -63,7 +65,7 @@ const SearchBar = () => {
             <Flex display={{ lg: "flex" }} alignItems="center">
                 <InputGroup>
                     <InputLeftElement pointerEvents="none" children={<BsSearch />} />
-                    <Input list="datalist-cities" placeholder="Country" size="lg" borderRadius="0" />
+                    <Input list="datalist-cities" placeholder="City" size="lg" borderRadius="0" />
                     {isLoading ? <InputRightElement children={<Spinner alignSelf="center" />}></InputRightElement> :
                         <datalist id="datalist-cities" style={{}}>
                             <Box>

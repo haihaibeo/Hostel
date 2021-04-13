@@ -1,9 +1,17 @@
+import { Box } from '@chakra-ui/react'
 import React from 'react'
 
-const ErrorPage = () => {
+type ErrorPageProps = {
+    message?: string
+}
+
+const ErrorPage: React.FC<ErrorPageProps> = ({ message }) => {
+    if (message) return (
+        <Box>{message}</Box>
+    )
     return (
         <div>
-            Hello from error page
+            Something's wrong
         </div>
     )
 }

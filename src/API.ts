@@ -8,6 +8,9 @@ axios.interceptors.response.use((response) => {
     if (error.response.status === 401) {
         console.log('unauthorized, logging out ...');
     }
+    // else if(error.response.status === 404){
+    //     return Promise.reject("Connection error")
+    // }
     return Promise.reject(error.response);
 });
 

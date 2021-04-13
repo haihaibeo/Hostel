@@ -44,7 +44,9 @@ var settings: Settings = {
 };
 
 const PropertyTypeList = () => {
-    const { data, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes);
+    const { data, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
+        staleTime: 1000 * 60 * 10
+    });
 
     if (isError) return <Box>Something's wrong</Box>
     return (

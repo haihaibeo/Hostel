@@ -20,6 +20,8 @@ import ProfilePage from "./Pages/ProfilePage";
 import Navbar from "./Components/NavComponents/Navbar";
 import PublishRoomPage from "./Pages/PublishRoomPage";
 import LoginForm from "./Components/LoginForm";
+import LoadingBar from "react-top-loading-bar";
+import axios from "axios";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
@@ -34,41 +36,73 @@ const myTheme = extendTheme({
 const queryClient = new QueryClient();
 
 
-export const App = () => (
-  <HashRouter basename="/">
-    <ChakraProvider theme={myTheme}>
-      <QueryClientProvider client={queryClient}>
-        <Box d="flex" flexDir="column" minH="100vh">
-          <AuthProvider>
-            <ScrollToTop />
-            <Box flex="1">
-              <Switch>
-                <Route exact path="/" component={HomePage} />
-                <Route component={LoginPage} path="/login"
-                  render={({ location }) =>
-                    <Redirect to={{ pathname: "/login", state: { from: location } }} />
-                  }
-                />
-                <Box mx="10%" mt="5">
-                  <Navbar></Navbar>
-                  <Route exact path="/rooms/:slug" component={SingleRoom} />
-                  <Route exact path="/rooms" component={RoomsPage} />
-                  <Route exact path="/publish" component={PublishRoomPage}></Route>
-                  <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
-                </Box>
-                <Route component={ErrorPage} />
-              </Switch>
-            </Box>
-            <Box flexShrink={0}>
-              <Footer />
-            </Box>
-          </AuthProvider>
-        </Box>
+export const App = () => {
+  const loadingRef = React.useRef<any>(null);
 
-      </QueryClientProvider>
-    </ChakraProvider>
-  </HashRouter>
-);
+  // loading bar will appear when a request is sended
+  // and disappear when get a response
+  // REMINDER: this is a fastest way to indicate top loading bar,
+  // but not in a very elegant way, should put it in a context and update manually in component
+  React.useEffect(() => {
+    loadingRef.current.complete();
+    axios.interceptors.request.use((config) => {
+      loadingRef.current.staticStart();
+      return config;
+    }, (e) => {
+      loadingRef.current.complete();
+      return Promise.reject(e);
+    })
+
+    axios.interceptors.response.use((config) => {
+      loadingRef.current.complete();
+      return config;
+    }, (e) => {
+      loadingRef.current.complete();
+      return Promise.reject(e);
+    })
+
+  }, [])
+
+  return (
+    <HashRouter basename="/">
+      <ChakraProvider theme={myTheme}>
+        <QueryClientProvider client={queryClient}>
+          <Box d="flex" flexDir="column" minH="100vh">
+            <AuthProvider>
+              <ScrollToTop />
+              <Box flex="1">
+                <LoadingBar color="#f11946" ref={loadingRef}></LoadingBar>
+                <Switch>
+                  <Route exact path="/" >
+                    <HomePage />
+                  </Route>
+
+                  <Route component={LoginPage} path="/login"
+                    render={({ location }) =>
+                      <Redirect to={{ pathname: "/login", state: { from: location } }} />
+                    }
+                  />
+                  <Box mx="10%" mt="5">
+                    <Navbar></Navbar>
+                    <Route exact path="/rooms/:slug" component={SingleRoom} />
+                    <Route exact path="/rooms" component={RoomsPage} />
+                    <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
+                    <AuthRoute exact path="/user/publish" component={PublishRoomPage}></AuthRoute>
+                  </Box>
+                  <Route component={ErrorPage} />
+                </Switch>
+              </Box>
+              <Box flexShrink={0}>
+                <Footer />
+              </Box>
+            </AuthProvider>
+          </Box>
+
+        </QueryClientProvider>
+      </ChakraProvider>
+    </HashRouter>
+  )
+};
 
 interface LocationState {
   from: {

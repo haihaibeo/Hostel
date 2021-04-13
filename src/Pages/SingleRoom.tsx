@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, Spinner, Progress } from '@chakra-ui/react';
 import { userInfo } from 'os';
 import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
@@ -30,6 +30,7 @@ type SingleRoomProps = {
 type OwnerInfo = {
     id: string;
     name: string;
+    profileImageUrl?: string;
 }
 
 type BookingInfo = {
@@ -51,7 +52,14 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
     const [didLike, setDidLike] = React.useState(room.liked);
     const toast = useToast();
 
-    const { data } = useQuery(["property", slug], () => fetchProperty(slug));
+    const { data, isError, error, isLoading } = useQuery(["property", slug],
+        () => {
+            return fetchProperty(slug)
+        }, {
+        staleTime: 1000 * 60 * 5,
+    });
+
+
     console.log(data?.data);
 
     const mutateLike = useMutation(toggleLike, {
@@ -98,8 +106,11 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
         }
         mutateLike.mutate({ roomId: room.id, token: auth.user.token })
     }
+    if (isError) {
+        return <Box>{"Something 's wrong"}</Box>
+    }
 
-    return (
+    if (data) return (
         <Box>
             <Divider my="5" />
             {/* title */}
@@ -228,7 +239,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                         </VStack>
 
                         <Spacer />
-                        <Avatar name={owner?.name}></Avatar>
+                        <Avatar name={owner?.name} src={owner?.profileImageUrl}></Avatar>
                     </Flex>
                     <Divider my="3" />
 
@@ -251,6 +262,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
             </Box>
         </Box>
     )
+    return <></>
 }
 
 const badges: RoomBadge[] = defaultRoomBadges;
@@ -278,6 +290,7 @@ const defaultRoom: RoomType = {
 const defaultOwner: OwnerInfo = {
     id: "1234",
     name: "Ivanov Ivan Ivanovich",
+    profileImageUrl: "https://scontent-arn2-1.xx.fbcdn.net/v/t1.6435-9/168934405_1649568108574870_2922711241924143290_n.jpg?_nc_cat=103&ccb=1-3&_nc_sid=09cbfe&_nc_ohc=NE0y-9oTNT4AX_6yZvA&_nc_ht=scontent-arn2-1.xx&oh=4a47294ccdbae32c261080108427acd1&oe=6096A09B"
 }
 
 export default SingleRoom;

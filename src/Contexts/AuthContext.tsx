@@ -55,7 +55,15 @@ export const AuthProvider: React.FC = ({ children }) => {
         console.log(request);
         setIsLoading(true);
         await new Promise(resolve => setTimeout(resolve, 2000));
-        mutateLogin.mutate(request);
+        try {
+            mutateLogin.mutate(request);
+        }
+        catch (e) {
+            console.log(e);
+        }
+        finally {
+            setIsLoading(false);
+        }
         // const dumb: UserResponse = {
         //     email: "mock@mail.com",
         //     name: "Mock Name",
