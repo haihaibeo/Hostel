@@ -1,12 +1,13 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, Spinner, Progress } from '@chakra-ui/react';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, Spinner, Progress, useDisclosure, Collapse, Tooltip } from '@chakra-ui/react';
 import { userInfo } from 'os';
 import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
 import { useMutation, useQuery } from 'react-query';
 import { Link, Redirect, useParams } from 'react-router-dom';
+import LoadingBar from 'react-top-loading-bar';
 import { fetchProperty, toggleLike } from '../API';
 import Navbar from '../Components/NavComponents/Navbar';
-import PickRangeDay from '../Components/NavComponents/PickRangeDay';
+import PickRangeDay, { getDatesBetween } from '../Components/NavComponents/PickRangeDay';
 import PopDetail from '../Components/NavComponents/PopDetail';
 import SearchBar from '../Components/NavComponents/SearchBar';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
@@ -16,15 +17,8 @@ type SlugProps = {
     slug: string;
 }
 
-interface RoomType extends RoomCardType {
-    images: string[];
-    roomIntroduction: string;
-    liked?: boolean;
-    roomBadges?: RoomBadge[];
-}
-
 type SingleRoomProps = {
-    room: RoomType;
+    initRoom: Room;
 }
 
 type OwnerInfo = {
@@ -43,24 +37,33 @@ type BookingInfo = {
     roomQuant: number;
 }
 
-const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
-    room = defaultRoom;
+const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
+    const [room, setRoom] = React.useState(defaultRoom);
     const auth = React.useContext(AuthContext);
     const { slug } = useParams<SlugProps>();
     const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ adult: 1, children: 0, roomQuant: 1 });
     const [owner, setOwner] = React.useState<OwnerInfo>();
-    const [didLike, setDidLike] = React.useState(room.liked);
+    const [didLike, setDidLike] = React.useState(false);
     const toast = useToast();
 
     const { data, isError, error, isLoading } = useQuery(["property", slug],
         () => {
-            return fetchProperty(slug)
-        }, {
-        staleTime: 1000 * 60 * 5,
-    });
-
-
-    console.log(data?.data);
+            return fetchProperty(slug);
+        },
+        {
+            // staleTime: 1000 * 60 * 3,
+            retry: 2,
+            onError: (error) => {
+                console.log(error);
+            },
+            onSuccess: (rs) => {
+                console.log(rs.data);
+                if (rs.data.liked) setDidLike(rs.data.liked);
+                setRoom({ ...rs.data, roomBadges: badges });
+            },
+            onSettled: () => {
+            }
+        });
 
     const mutateLike = useMutation(toggleLike, {
         onSuccess: (res) => {
@@ -104,11 +107,13 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
             });
             return;
         }
+        console.log(auth.user.token);
         mutateLike.mutate({ roomId: room.id, token: auth.user.token })
     }
-    if (isError) {
-        return <Box>{"Something 's wrong"}</Box>
-    }
+
+    // if (isError) {
+    //     return <Box>{"Something 's wrong"}</Box>
+    // }
 
     if (data) return (
         <Box>
@@ -140,7 +145,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
 
                 <Button alignSelf="start" variant="ghost" size="sm"
                     onClick={() => handleLike()}
-                    leftIcon={!didLike ? <BsHeart /> : <BsHeartFill color="red" />}>Like</Button>
+                    leftIcon={(!didLike || !auth.user) ? <BsHeart /> : <BsHeartFill color="red" />}>Like</Button>
             </Box>
 
             {/* image display */}
@@ -148,10 +153,10 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                 <Grid gap="2" h="40%" maxH="450px" objectFit="cover"
                     templateRows="repeat(2, 1fr)"
                     templateColumns="repeat(4, 1fr)">
-                    {room.images.map((image, i) => {
+                    {room.images.slice(0, 5).map((image, i) => {
                         return (
                             <GridItem key={i} colSpan={i === 0 ? 2 : 1} rowSpan={i === 0 ? 2 : 1} overflow="hidden" >
-                                <Image src={image} h="auto" height="100%" w="100%" objectFit="cover" loading="lazy"></Image>
+                                <Image src={image.url} h="auto" height="100%" w="100%" objectFit="cover" loading="lazy"></Image>
                             </GridItem>
                         )
                     })}
@@ -165,55 +170,8 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
                     borderRadius="lg"
                     display="inline-flex" flexDir="column" zIndex={1} borderWidth="thin"
                     p="4" alignContent="center" justifyContent="center">
-                    <Flex alignItems="baseline">
-                        <Box as="h2" fontFamily="mono" fontSize="3xl" fontWeight="semibold">{room.formattedPrice + "$"}
-                        </Box>
-                        <Box as="span" color="gray.500">
-                            /per night
-                        </Box>
-                        <Spacer />
-                        <Box d="flex" alignItems="center">
-                            {Array(5).fill("").map((_, i) => {
-                                return (i < Math.round(room.totalStar / room.totalReview) ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
-                            })}
-                        </Box>
-                    </Flex>
-
-                    <Box mt="4">
-                        <Popover closeOnBlur={true}>
-                            <PopoverTrigger>
-                                <HStack spacing="0">
-                                    <Button variant="outline" borderTopLeftRadius="lg"
-                                        size="lg" w="100%"
-                                        _focusVisible={{ border: "0" }}
-                                        borderRadius="0">
-                                        {bookInfo?.bookFromDate?.toLocaleDateString() || "From"}
-                                    </Button>
-                                    <Button variant="outline" borderTopRightRadius="lg"
-                                        size="lg" w="100%"
-                                        _focusVisible={{ border: "0" }}
-                                        borderRadius="0">
-                                        {bookInfo?.bookToDate?.toLocaleDateString() || "To"}
-                                    </Button>
-                                </HStack>
-                            </PopoverTrigger>
-                            <PopoverContent flexWrap="nowrap" alignItems="center" w="550px" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
-                                <PickRangeDay updateDate={updateDate} />
-                            </PopoverContent>
-                        </Popover>
-                        <Popover>
-                            <PopoverTrigger>
-                                <Button variant="outline" w="100%" size="lg" borderRadius="0" borderBottomRadius="lg" px="2">{bookInfo.adult + ' adult(s) - ' + bookInfo.children + ' child(s) - ' + bookInfo.roomQuant + ' room(s)'}</Button>
-                            </PopoverTrigger>
-                            <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
-                                <PopDetail updatePeople={updatePeople} adult={bookInfo.adult} bedRoom={bookInfo.roomQuant} children={bookInfo.children}></PopDetail>
-                            </PopoverContent>
-                        </Popover>
-                    </Box>
-
-                    <Button variant="solid" colorScheme="green" alignSelf="stretch" mt="4">Check for reservation</Button>
+                    <FloatingForm room={room} bookInfo={bookInfo} updateDate={updateDate} updatePeople={updatePeople} />
                 </Box>
-
                 {/* Detail information about this room */}
                 <Box height="1000px" w={["100%", "100%", "100%", "60%"]}>
                     {/* name, avatar */}
@@ -251,13 +209,15 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
 
                     {/* room introduction */}
                     <Box as="h5" fontWeight="semibold" fontSize="2xl">More about room</Box>
-                    <Box as="p">{room.roomIntroduction}</Box>
+                    <Box as="p">{room.introduction}</Box>
                     <Divider my="3" />
 
                     {/* another datepicker here */}
-                    <Box w="100%" display={{ base: "none", sm: "block", md: "block" }}>
+                    <Box w="100%" display={{ md: "none", lg: "block" }}>
                         <PickRangeDay updateDate={updateDate}></PickRangeDay>
                     </Box>
+                    <Divider my="3" />
+
                 </Box>
             </Box>
         </Box>
@@ -265,17 +225,132 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ room, children }) => {
     return <></>
 }
 
+type FloatingFormProps = {
+    room: Room;
+    bookInfo: BookingInfo;
+    updatePeople: (adult: number, children: number, room: number) => void;
+    updateDate: (from?: Date | undefined, to?: Date | undefined) => void
+}
+
+
+// TODO: Lazily fetch reservation info when pop over open
+const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate, updatePeople }) => {
+    const feeCollapse = useDisclosure();
+    const [nightCount, setNightCount] = React.useState<number>(0);
+
+    React.useEffect(() => {
+        if (bookInfo.bookFromDate && bookInfo.bookToDate) {
+            setNightCount(getDatesBetween(bookInfo.bookFromDate.toDateString(), bookInfo.bookToDate.toDateString()).length + 1)
+            return feeCollapse.onOpen();
+        }
+        return feeCollapse.onClose();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bookInfo.bookFromDate, bookInfo.bookToDate])
+
+    return (
+        <Box display="inline-flex" flexDir="column" alignContent="center" justifyContent="center">
+            <Flex alignItems="baseline">
+                <Box as="h2" fontFamily="mono" fontSize="3xl" fontWeight="semibold">{room.formattedPrice + "$ "}
+                </Box>
+                <Box as="span" color="gray.500" fontStyle="italic">
+                    / per night
+                </Box>
+                <Spacer />
+                <Box d="flex" alignItems="center">
+                    {Array(5).fill("").map((_, i) => {
+                        return (i < Math.round(room.totalStar / room.totalReview) ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
+                    })}
+                </Box>
+            </Flex>
+
+            {/* Pop over */}
+            <Box mt="4">
+                <Popover closeOnBlur={true}>
+                    <PopoverTrigger>
+                        <HStack spacing="0">
+                            <Button variant="outline" borderTopLeftRadius="lg"
+                                size="lg" w="100%"
+                                _focusVisible={{ border: "0" }}
+                                borderRadius="0">
+                                {bookInfo?.bookFromDate?.toLocaleDateString() || "From"}
+                            </Button>
+                            <Button variant="outline" borderTopRightRadius="lg"
+                                size="lg" w="100%"
+                                _focusVisible={{ border: "0" }}
+                                borderRadius="0">
+                                {bookInfo?.bookToDate?.toLocaleDateString() || "To"}
+                            </Button>
+                        </HStack>
+                    </PopoverTrigger>
+                    <PopoverContent flexWrap="nowrap" alignItems="center" w="550px" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
+                        <PickRangeDay schedules={{ reservedDates: room.reservedDates, dayOff: room.daysOff }} updateDate={updateDate} />
+                    </PopoverContent>
+                </Popover>
+                <Popover>
+                    <PopoverTrigger>
+                        <Button variant="outline" w="100%" size="lg" borderRadius="0" borderBottomRadius="lg" px="2">{bookInfo.adult + ' adult(s) - ' + bookInfo.children + ' child(s) - ' + bookInfo.roomQuant + ' room(s)'}</Button>
+                    </PopoverTrigger>
+                    <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
+                        <PopDetail updatePeople={updatePeople} adult={bookInfo.adult} bedRoom={bookInfo.roomQuant} children={bookInfo.children}></PopDetail>
+                    </PopoverContent>
+                </Popover>
+            </Box>
+
+            <Button variant="solid" colorScheme="green" alignSelf="stretch" mt="4">Check for reservation</Button>
+            <Box alignSelf="center" my="2" fontWeight="thin" fontStyle="oblique">You won't be charged yet</Box>
+
+            {/* Fee details */}
+            <Collapse in={feeCollapse.isOpen}>
+                <Box fontSize="lg">
+                    <Flex alignItems="baseline">
+                        <Tooltip label={nightCount && `You are currently booking ${nightCount} night(s)`}
+                            placement="left" hasArrow>
+                            <Box fontWeight="light" textDecoration="underline">{room.formattedPrice}$ x {nightCount} nights</Box>
+                        </Tooltip>
+                        <Spacer />
+                        <Box fontFamily="mono" >{`${room.formattedPrice * nightCount}$`}</Box>
+                    </Flex>
+                    <Flex alignItems="baseline">
+                        <Tooltip label="The owner keeps your place in highest cleanliness" placement="left" hasArrow>
+                            <Box fontWeight="light" textDecoration="underline">Cleaning fee</Box>
+                        </Tooltip>
+                        <Spacer />
+                        <Box fontFamily="mono">{room.cleaningFee} $</Box>
+                    </Flex>
+                    <Flex alignItems="baseline">
+                        <Tooltip label="This helps us run our platform and offer services like 24/7 support on your trip. It includes VAT." placement="left" hasArrow>
+                            <Box fontWeight="light" textDecoration="underline">Service fee</Box>
+                        </Tooltip>
+                        <Spacer />
+                        <Box fontFamily="mono">{room.serviceFee} $</Box>
+                    </Flex>
+                    <Divider my="2" colorScheme="green" variant="dashed" />
+                    <Flex fontWeight="black" fontSize="3xl">
+                        <Box fontFamily="mono">Total</Box>
+                        <Spacer />
+                        <Box fontFamily="mono">{room.formattedPrice * nightCount + room.cleaningFee + room.serviceFee} $</Box>
+                    </Flex>
+                </Box>
+            </Collapse>
+        </Box>
+    )
+}
+
 const badges: RoomBadge[] = defaultRoomBadges;
 
-const defaultRoom: RoomType = {
+const defaultRoom: Room = {
     id: "1",
     name: "Crystal palace",
     thumbnailUrl: "https://bit.ly/2Z4KKcF",
-    images: ["https://picsum.photos/1100/1000", "https://picsum.photos/700/1200",
-        "https://picsum.photos/1000/1000", "https://picsum.photos/1200/1000",
-        "https://picsum.photos/1100/900"],
+    images: [
+        { url: "https://picsum.photos/1100/1000" },
+        { url: "https://picsum.photos/700/1200" },
+        { url: "https://picsum.photos/1000/1000" },
+        { url: "https://picsum.photos/1200/1000" },
+        { url: "https://picsum.photos/1100/900" }
+    ],
     thumbnailAlt: "rear view house with pool",
-    roomIntroduction: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum congue eros id ligula porta, id fermentum ligula semper. Pellentesque eget pulvinar justo. Phasellus eu risus dolor. Aliquam mollis urna vel lectus ornare, nec ultricies augue gravida. Nunc dignissim diam vel massa cursus condimentum. Nulla pharetra molestie nunc, ac hendrerit felis posuere a. Sed finibus magna ut nibh luctus, ac dapibus mauris cursus. Sed eu porttitor lacus. Nulla venenatis erat quis orci consectetur efficitur. Phasellus nisl nisl, luctus et sapien nec, dictum feugiat felis. Nam nec ullamcorper mi, eu vulputate justo. Nullam nibh ipsum, dictum at commodo nec, molestie et ipsum. Aliquam sit amet tincidunt augue, sit amet consectetur mi.",
+    introduction: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum congue eros id ligula porta, id fermentum ligula semper. Pellentesque eget pulvinar justo. Phasellus eu risus dolor. Aliquam mollis urna vel lectus ornare, nec ultricies augue gravida. Nunc dignissim diam vel massa cursus condimentum. Nulla pharetra molestie nunc, ac hendrerit felis posuere a. Sed finibus magna ut nibh luctus, ac dapibus mauris cursus. Sed eu porttitor lacus. Nulla venenatis erat quis orci consectetur efficitur. Phasellus nisl nisl, luctus et sapien nec, dictum feugiat felis. Nam nec ullamcorper mi, eu vulputate justo. Nullam nibh ipsum, dictum at commodo nec, molestie et ipsum. Aliquam sit amet tincidunt augue, sit amet consectetur mi.",
     description: "Best place in town",
     location: "Dark side, the moon",
     totalReview: 4,
@@ -283,6 +358,8 @@ const defaultRoom: RoomType = {
     formattedPrice: 2021.00,
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"],
     roomBadges: badges,
+    serviceFee: 0.00,
+    cleaningFee: 40.00
 }
 
 

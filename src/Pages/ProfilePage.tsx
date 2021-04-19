@@ -62,7 +62,7 @@ type LikesProps = {
 }
 
 const UserLikesProperties: React.FC<LikesProps> = ({ userToken, children }) => {
-    const rooms: RoomCardType[] = defaultRooms;
+    const rooms: RoomCard[] = defaultRooms;
     return (
         <Box>
             <Box as={"h1"} fontFamily={"heading"} fontWeight="bold" fontSize="4xl" mb="3">Rooms that you saved</Box>
@@ -81,7 +81,7 @@ const Notifications: React.FC = () => {
 
 export default ProfilePage;
 
-const defaultRoom: RoomCardType = {
+const defaultRoom: RoomCard = {
     id: "random-id-12321",
     name: "Crystal palace",
     thumbnailUrl: "https://picsum.photos/1100/1000?random=1",
@@ -94,7 +94,7 @@ const defaultRoom: RoomCardType = {
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
 }
 
-const defaultRooms: Array<RoomCardType> = [
+const defaultRooms: Array<RoomCard> = [
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },

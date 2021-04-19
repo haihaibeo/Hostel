@@ -38,13 +38,13 @@ const queryClient = new QueryClient();
 
 export const App = () => {
   const loadingRef = React.useRef<any>(null);
-
   // loading bar will appear when a request is sended
   // and disappear when get a response
   // REMINDER: this is a fastest way to indicate top loading bar,
   // but not in a very elegant way, should put it in a context and update manually in component
   React.useEffect(() => {
     loadingRef.current.complete();
+
     axios.interceptors.request.use((config) => {
       loadingRef.current.staticStart();
       return config;
@@ -92,10 +92,11 @@ export const App = () => {
                   <Route component={ErrorPage} />
                 </Switch>
               </Box>
-              <Box flexShrink={0}>
-                <Footer />
-              </Box>
             </AuthProvider>
+            <Box h="200px"></Box>
+            {/* <Box position="relative" left={0} bottom={0}> */}
+            <Footer as="footer" />
+            {/* </Box> */}
           </Box>
 
         </QueryClientProvider>
@@ -128,7 +129,6 @@ const LoginPage = () => {
 
 const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
   let auth = React.useContext(AuthContext);
-  console.log(auth.user);
   if (auth.user) return (<Route {...rest}>{children}</Route>)
 
   else return (<Route {...rest}>

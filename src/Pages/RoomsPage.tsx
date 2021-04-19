@@ -12,7 +12,7 @@ const RoomsPage = () => {
     const queryStr = new URLSearchParams(useLocation().search);
     const queryTypeId = queryStr.get("typeId");
 
-    const { data, isLoading, error } = useQuery("propertyView", () => fetchPropertyView(queryTypeId), { staleTime: 1000 * 60 })
+    const { data, isLoading, error } = useQuery(["propertyView", queryTypeId], () => fetchPropertyView(queryTypeId), { staleTime: 1000 * 60 })
 
     if (error) {
         return <>Error</>

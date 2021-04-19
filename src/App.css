@@ -8,6 +8,13 @@ datalist-cities {
   background-color: #0ceeee;
 }
 
+.DayPicker-Day--checkoutOnly {
+  color: rgb(253, 241, 75);
+}
+
+.DayPicker-Day--checkoutOnly:hover {
+}
+
 .DayPicker-Day {
   display: table-cell;
   padding: 0.5em;
@@ -19,25 +26,37 @@ datalist-cities {
 }
 
 .DayPicker-Day--today {
-  color: #bb5160;
+  color: #00ff37;
   font-weight: 500;
 }
 
 .DayPicker-Day--disabled {
-  cursor: not-allowed;
+  cursor: default;
   color: #797979;
   font-weight: 500;
   text-decoration: line-through;
 }
-
-.DayPicker-Day--selected:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside) {
-  background-color: #13334d !important;
+.DayPicker-Day--disabled:hover {
+  color: #797979;
+  font-weight: 500;
+  text-decoration: line-through;
+  background-color: "none";
 }
+
+.DayPicker-Day--selected:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside):not(.DayPicker-Day--disabled) {
+  background-color: #73a177 !important;
+}
+
+.DayPicker-Day--start:not(.DayPicker-Day--outside),
+.DayPicker-Day--end:not(.DayPicker-Day--disabled):not(.DayPicker-Day--outside) {
+  background-color: #1c680d !important;
+}
+
 .Range .DayPicker-Day {
   border-radius: 0 !important;
 }
 
 .DayPicker:not(.DayPicker--interactionDisabled)
   .DayPicker-Day:not(.DayPicker-Day--disabled):not(.DayPicker-Day--selected):not(.DayPicker-Day--outside):hover {
-  background-color: #328edf;
+  background-color: #73a177;
 }

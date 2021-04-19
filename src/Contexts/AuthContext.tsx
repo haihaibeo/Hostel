@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/toast';
 import axios, { AxiosResponse } from 'axios';
 import React from 'react';
-import { useMutation } from 'react-query';
-import { API_URL, authenticate } from '../API';
+import { useMutation, useQuery } from 'react-query';
+import { API_URL, authenticate, validateToken } from '../API';
 
 
 type AuthContextStates = {
@@ -33,16 +33,41 @@ export const AuthProvider: React.FC = ({ children }) => {
     React.useEffect(() => {
         const foundUser = localStorage.getItem("user");
         if (foundUser) {
-            setUser(JSON.parse(foundUser) as UserResponse);
+            const user = JSON.parse(foundUser) as UserResponse;
+
+            validateToken(user.token).then(res => {
+                console.log("validating...")
+                console.log(res);
+                if (res.status !== 200) return logoutAsync("Token expired");
+            })
+
+            setUser(user);
+            axios.interceptors.request.use((config) => {
+                if (user.token) {
+                    config.headers.Authorization = `Bearer ${user.token}`;
+                }
+                return config;
+            }, (e) => {
+                return Promise.reject(e);
+            })
         }
     }, [])
 
-    const logoutAsync = async () => {
+    React.useEffect(() => {
+        axios.interceptors.request.use((config) => {
+            if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
+            return config;
+        }, (e) => {
+            return Promise.reject(e);
+        })
+    }, [user])
+
+    const logoutAsync = async (msg?: string) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setUser(undefined);
         localStorage.removeItem("user");
         toast({
-            title: "Logged out successfully!",
+            title: msg ? msg : "Logged out successfully!",
             isClosable: true,
             duration: 3000,
             status: "success"
@@ -52,7 +77,6 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
 
     const loginAsync = async (request: LoginRequest) => {
-        console.log(request);
         setIsLoading(true);
         await new Promise(resolve => setTimeout(resolve, 2000));
         try {
@@ -64,20 +88,6 @@ export const AuthProvider: React.FC = ({ children }) => {
         finally {
             setIsLoading(false);
         }
-        // const dumb: UserResponse = {
-        //     email: "mock@mail.com",
-        //     name: "Mock Name",
-        //     token: "long long long token",
-        //     userId: "123412324"
-        // }
-        // localStorage.setItem("user", JSON.stringify(dumb));
-        // setIsLoading(false);
-        // return dumb;
-
-        // const response = axios.post(API_URL + "/api/user/authenticate", {
-        //     "email": request.email,
-        //     "password": request.password
-        // })
     }
 
     return (

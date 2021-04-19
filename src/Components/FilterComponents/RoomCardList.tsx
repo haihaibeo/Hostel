@@ -3,14 +3,14 @@ import React from 'react'
 import RoomCard from './RoomCard'
 
 type RoomCardListProps = {
-    rooms: RoomCardType[];
+    rooms?: RoomCard[];
 }
 
 const RoomCardList: React.FC<RoomCardListProps> = ({ rooms }) => {
     // rooms = defaultRooms;
     return (
         <SimpleGrid spacing="8" columns={[1, 1, 1, 2, 3]}>
-            {rooms.map((r, index) => {
+            {rooms && rooms.map((r, index) => {
                 return (
                     <RoomCard key={r.id} room={r} isSaved={false}></RoomCard>
                 )
@@ -19,7 +19,7 @@ const RoomCardList: React.FC<RoomCardListProps> = ({ rooms }) => {
     )
 }
 
-const defaultRoom: RoomCardType = {
+const defaultRoom: RoomCard = {
     id: "random-id-12321",
     name: "Crystal palace",
     thumbnailUrl: "https://picsum.photos/1100/1000?random=1",
@@ -32,7 +32,7 @@ const defaultRoom: RoomCardType = {
     services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
 }
 
-const defaultRooms: Array<RoomCardType> = [
+const defaultRooms: Array<RoomCard> = [
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
     { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },

@@ -67,3 +67,11 @@ export const toggleLike = ({roomId, token}: ToggleLikeProps) => {
         }
     });
 }
+
+export const validateToken = (token: string) => {
+    return fetch(`${API_URL}/api/user/validate-token`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+}

@@ -1,14 +1,10 @@
-import { Box, Center, Divider } from '@chakra-ui/react'
+import { Box, BoxProps, Center, Divider } from '@chakra-ui/react'
 import React from 'react'
 import { BsHeartFill } from 'react-icons/bs';
 
-type FooterProps = {
-    height?: string
-}
-
-const Footer: React.FC<FooterProps> = ({ height }) => {
+const Footer: React.FC<BoxProps> = ({ children, ...props }) => {
     return (
-        <Box mt="10" mb="5">
+        <Box mt="10" mb="5" {...props}>
             <Divider mb="5" boxShadow="lg" />
             <Center as="h4">
                 {"Made with"}

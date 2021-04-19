@@ -4,16 +4,21 @@ import { BsStar, BsStarFill } from 'react-icons/bs';
 import { Link as LinkReact } from 'react-router-dom';
 
 type RoomCardProps = {
-    room: RoomCardType;
+    room: RoomCard;
     isSaved: boolean;
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, children, isSaved }) => {
     return (
-        <Box overflow="hidden" borderWidth="1px" borderRadius="lg">
-            <Link as={LinkReact} to={"/rooms/" + room.id}>
-                <Image src={room.thumbnailUrl} alt={room.thumbnailAlt} style={{ transition: "ease 0.2s" }} _hover={{ WebkitFilter: "brightness(0.7)" }} />
-            </Link>
+        <Box borderWidth="1px" borderRadius="lg">
+            <Box overflow="hidden">
+                <Link as={LinkReact} to={"/rooms/" + room.id}>
+                    <Image src={room.thumbnailUrl}
+                        alt={room.thumbnailAlt} overflow="hidden"
+                        style={{ transition: "ease 0.5s" }}
+                        _hover={{ transform: "scale(1.1)" }} />
+                </Link>
+            </Box>
 
             <Box p="4" d="flex" flexDir="column">
                 {!isSaved &&

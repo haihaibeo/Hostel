@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
+import React, { FC } from 'react';
+import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
 import { Link as RouterLink } from 'react-router-dom';
@@ -8,7 +8,7 @@ import RegisterButton from '../RegisterButton';
 import { AuthContext } from '../../Contexts/AuthContext';
 import { BsBell, BsBookmark, BsBoxArrowDown, BsCalendar, BsChevronDown } from 'react-icons/bs';
 
-const Navbar = () => {
+const Navbar: FC<BoxProps> = ({ ...props }) => {
     const auth = React.useContext(AuthContext);
     const [user, setUser] = React.useState(auth.user);
 
@@ -17,7 +17,7 @@ const Navbar = () => {
     }, [auth.user])
 
     return (
-        <Box marginBottom={["5%"]}>
+        <Box marginBottom={["5%"]} {...props}>
             <Flex justifyContent="center" alignItems="center">
                 <RouterLink to="/">
                     <HStack spacing={4}>

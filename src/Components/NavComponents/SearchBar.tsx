@@ -90,7 +90,7 @@ const SearchBar = () => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                        flexWrap="nowrap" alignItems="center"
+                        flexWrap="nowrap" alignItems="center" style={{ backdropFilter: "blur(5px)" }}
                         w="550px" borderRadius="0" bgColor="rgba(66, 153, 225, 0.5)">
                         <PickRangeDay updateDate={UpdateDate} />
                     </PopoverContent>
@@ -99,7 +99,7 @@ const SearchBar = () => {
                     <PopoverTrigger>
                         <Button variant="outline" w={["100%", "100%", "100%", "150%"]} size="lg" borderRadius="0" px="2">{form.adultNum + ' adult(s) - ' + form.childrenNum + ' child(s) - ' + form.bedRoom + ' room(s)'}</Button>
                     </PopoverTrigger>
-                    <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
+                    <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.5)">
                         <PopDetail updatePeople={UpdatePeople} adult={form.adultNum!} bedRoom={form.bedRoom!} children={form.childrenNum!}></PopDetail>
                     </PopoverContent>
                 </Popover>

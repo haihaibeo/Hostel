@@ -1,4 +1,4 @@
-type RoomCardType = {
+interface RoomCard {
     id: string;
     name: string;
     thumbnailUrl: string;
@@ -11,21 +11,39 @@ type RoomCardType = {
     services: Array<string>;
 }
 
-type UserResponse = {
+interface Room extends RoomCard {
+    images: {
+        id?: string,
+        alt?: string,
+        url?: string
+    }[],
+    introduction: string;
+    liked?: boolean;
+    roomBadges?: RoomBadge[];
+    reservedDates?: {
+        fromDate: string,
+        toDate: string,
+    }[];
+    daysOff?: Date[];
+    serviceFee: number;
+    cleaningFee: number;
+}
+
+interface UserResponse {
     userId: string;
     name: string;
     email: string;
     token: string;
 }
 
-type RoomBadge = {
+interface RoomBadge {
     id: string;
     title: string;
     description: string;
     icon?: any;
 }
 
-type PropertyTypeType = {
+interface PropertyTypeType {
     id: string;
     propertyType: string;
     thumbnailImg: string;
@@ -33,7 +51,7 @@ type PropertyTypeType = {
     count: number;
 }
 
-type Comment = {
+interface Comment {
     id: string;
     commentUserId: string;
     comment: string;
@@ -41,7 +59,7 @@ type Comment = {
     belongToCommentId?: string;
 }
 
-type LoginRequest = {
+interface LoginRequest {
     email?: string;
     password?: string;
     remember?: boolean;
