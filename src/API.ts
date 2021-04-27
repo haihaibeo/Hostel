@@ -1,6 +1,9 @@
 import axios from "axios";
 
 export const API_URL = "http://localhost:44344";
+const API_IMAGE_UPLOADER_URL = "https://api.imgur.com/3/upload";
+const API_IMAGE_CLIENT_ID = "30ca2ca5dd1f71d";
+// const API_IMAGE_CLIENT_SECRET = "5e497c2ba20ff36c20aa512366ddee25300c56e1";
 
 axios.interceptors.response.use((response) => {
     return response;
@@ -13,6 +16,33 @@ axios.interceptors.response.use((response) => {
     // }
     return Promise.reject(error.response);
 });
+
+// axios.interceptors.request.use((req) => {
+//     req.headers.Authorization = `Client-ID : ${API_IMAGE_CLIENT_ID}`
+//     return req;
+// })
+
+export const postRoom = (data: PublishRoomState) => {
+    return axios({
+        method: "POST",
+        url: API_URL + "/api/properties/",
+        data: data,
+    })
+}
+
+export const postImage = (data : any) => axios({
+    method: "post",
+    url: API_IMAGE_UPLOADER_URL,
+    data: data,
+    headers: {
+        'Content-Type' : 'multipart/form-data',
+    },
+})
+
+export const deleteImage = (delHash: string) => axios({
+    method: "DELETE",
+    url: `https://api.imgur.com/3/image/${delHash}`,
+})
 
 export const authenticate = (req: LoginRequest) => {
     return axios.post<UserResponse>(API_URL + "/api/user/authenticate", {

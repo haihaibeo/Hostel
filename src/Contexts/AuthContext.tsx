@@ -92,7 +92,6 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ loginAsync: loginAsync, logoutAsync: logoutAsync, isLoading: isLoading, user: user }}>
-            {mutateLogin.isError && console.log(mutateLogin.error)}
             {children}
         </AuthContext.Provider>
     )

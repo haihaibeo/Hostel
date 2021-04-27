@@ -10,9 +10,9 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ message }) => {
         <Box>{message}</Box>
     )
     return (
-        <div>
+        <Box>
             Something's wrong
-        </div>
+        </Box>
     )
 }
 

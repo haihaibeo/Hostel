@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@chakra-ui/react'
+import { SimpleGrid, Box } from '@chakra-ui/react'
 import React from 'react'
 import RoomCard from './RoomCard'
 
@@ -8,8 +8,12 @@ type RoomCardListProps = {
 
 const RoomCardList: React.FC<RoomCardListProps> = ({ rooms }) => {
     // rooms = defaultRooms;
+    if (!rooms || rooms.length === 0) return <Box>
+        Not found any room
+    </Box>
+
     return (
-        <SimpleGrid spacing="8" columns={[1, 1, 1, 2, 3]}>
+        <SimpleGrid spacing="8" columns={[1, 1, 1, 2, 3]} >
             {rooms && rooms.map((r, index) => {
                 return (
                     <RoomCard key={r.id} room={r} isSaved={false}></RoomCard>

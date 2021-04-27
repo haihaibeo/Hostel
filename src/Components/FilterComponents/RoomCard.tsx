@@ -8,7 +8,7 @@ type RoomCardProps = {
     isSaved: boolean;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, children, isSaved }) => {
+const RoomCard = ({ room, isSaved }: RoomCardProps) => {
     return (
         <Box borderWidth="1px" borderRadius="lg">
             <Box overflow="hidden">

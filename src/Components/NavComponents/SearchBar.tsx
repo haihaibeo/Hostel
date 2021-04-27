@@ -8,7 +8,7 @@ import { fetchCities } from '../../API';
 import PickRangeDay from './PickRangeDay';
 import PopDetail from './PopDetail';
 
-type CityResponse = {
+export type CityResponse = {
     cityName: string;
     cityId: string;
     countryName: string;

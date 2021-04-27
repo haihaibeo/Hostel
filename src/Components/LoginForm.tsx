@@ -1,4 +1,4 @@
-import { Box, FormControl, FormLabel, Input, Button, Checkbox, FormErrorMessage } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, Button, Checkbox, FormErrorMessage, chakra } from '@chakra-ui/react';
 import React from 'react'
 import { FaArrowRight } from 'react-icons/fa';
 import { useHistory } from 'react-router';
@@ -48,36 +48,39 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
     }
 
     return (
-        <FormControl isRequired isDisabled={authContext.isLoading} isInvalid={emailError || passwordError} d="flex" flexDir="column">
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input placeholder="Enter your email" id="email" isInvalid={emailError} ref={initRef} variant="filled" size="lg" type="email"
-                value={loginForm.email} isRequired
-                onChange={(e) => setLoginForm(s => ({
-                    ...s,
-                    email: e.target.value.trim()
-                }))}></Input>
-            <FormErrorMessage>{"Email not correct"}</FormErrorMessage>
+        <chakra.form>
+            <FormControl isRequired isDisabled={authContext.isLoading} isInvalid={emailError || passwordError} d="flex" flexDir="column">
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <Input placeholder="Enter your email" id="email" isInvalid={emailError} ref={initRef} variant="filled" size="lg" type="email"
+                    value={loginForm.email} isRequired
+                    onChange={(e) => setLoginForm(s => ({
+                        ...s,
+                        email: e.target.value.trim()
+                    }))}></Input>
+                <FormErrorMessage>{"Email not correct"}</FormErrorMessage>
 
-            <FormLabel htmlFor="password" my="2">Password</FormLabel>
-            <Input placeholder="Enter your password" id="password" isInvalid={passwordError} variant="filled" size="lg" type="password"
-                value={loginForm.password} required={true} minLength={1} isRequired
-                onChange={(e) => setLoginForm(s => ({
-                    ...s,
-                    password: e.target.value
-                }))}></Input>
+                <FormLabel htmlFor="password" my="2">Password</FormLabel>
+                <Input placeholder="Enter your password" id="password" isInvalid={passwordError} variant="filled" size="lg" type="password"
+                    value={loginForm.password} required={true} minLength={1} isRequired
+                    onChange={(e) => setLoginForm(s => ({
+                        ...s,
+                        password: e.target.value
+                    }))}></Input>
 
-            <Checkbox size="lg" checked={loginForm.remember} mt="2"
-                onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>
-                Remember me
-            </Checkbox>
+                <Checkbox size="lg" checked={loginForm.remember} mt="2"
+                    onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>
+                    Remember me
+                </Checkbox>
 
-            <Button my="3" w="30%" rounded="full" type="submit" alignSelf="center" title="Login"
-                isLoading={authContext.isLoading}
-                isDisabled={emailError || passwordError}
-                onClick={handleLogin}>
-                <FaArrowRight />
-            </Button>
-        </FormControl>
+                <Button my="3" w="30%" rounded="full" type="submit" alignSelf="center" title="Login"
+                    isLoading={authContext.isLoading}
+                    isDisabled={emailError || passwordError}
+                    onClick={handleLogin}>
+                    <FaArrowRight />
+                </Button>
+            </FormControl>
+        </chakra.form>
+
     );
 }
 

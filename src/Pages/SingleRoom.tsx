@@ -38,12 +38,14 @@ type BookingInfo = {
 }
 
 const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
-    const [room, setRoom] = React.useState(defaultRoom);
     const auth = React.useContext(AuthContext);
-    const { slug } = useParams<SlugProps>();
+
+    const [room, setRoom] = React.useState(defaultRoom);
     const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ adult: 1, children: 0, roomQuant: 1 });
     const [owner, setOwner] = React.useState<OwnerInfo>();
     const [didLike, setDidLike] = React.useState(false);
+
+    const { slug } = useParams<SlugProps>();
     const toast = useToast();
 
     const { data, isError, error, isLoading } = useQuery(["property", slug],

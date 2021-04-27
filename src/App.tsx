@@ -22,6 +22,7 @@ import PublishRoomPage from "./Pages/PublishRoomPage";
 import LoginForm from "./Components/LoginForm";
 import LoadingBar from "react-top-loading-bar";
 import axios from "axios";
+import PreviewRoomPage from "./Pages/PreviewRoomPage";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
@@ -77,7 +78,7 @@ export const App = () => {
                     <HomePage />
                   </Route>
 
-                  <Route component={LoginPage} path="/login"
+                  <Route component={LoginPage} exact path="/login"
                     render={({ location }) =>
                       <Redirect to={{ pathname: "/login", state: { from: location } }} />
                     }
@@ -86,6 +87,7 @@ export const App = () => {
                     <Navbar></Navbar>
                     <Route exact path="/rooms/:slug" component={SingleRoom} />
                     <Route exact path="/rooms" component={RoomsPage} />
+                    <Route exact path="/room/preview" component={PreviewRoomPage} />
                     <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
                     <AuthRoute exact path="/user/publish" component={PublishRoomPage}></AuthRoute>
                   </Box>
@@ -113,15 +115,14 @@ interface LocationState {
 
 const LoginPage = () => {
   const location = useLocation<LocationState>();
-  const history = useHistory();
   const auth = React.useContext(AuthContext);
 
   let { from } = location.state || { from: { pathname: "/" } };
-  console.log(from);
   if (auth.user) return <Redirect to={from}></Redirect>
 
   return (
-    <Box mx="20%" flex="0">
+    <Box mx="20%" mt="10" flex="0">
+      <Navbar />
       <LoginForm></LoginForm>
     </Box>
   );
@@ -134,8 +135,10 @@ const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
   else return (<Route {...rest}>
     <Redirect to={{
       pathname: "/login",
-      state: window.location
-    }}></Redirect>
+      state: {
+        from: rest.path
+      }
+    }} />
   </Route>)
 }
 

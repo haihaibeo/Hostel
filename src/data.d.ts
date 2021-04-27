@@ -64,3 +64,32 @@ interface LoginRequest {
     password?: string;
     remember?: boolean;
 }
+
+interface PublishRoomState {
+    name: string;
+    description: string;
+    introdution?: string;
+    countryId: string;
+    cityId: string; 
+    streetName: string;
+    addressDesc?: string;
+    number: string;
+    images: {
+        url: string;
+        alt?: string;
+        deleteHash?: string;
+    }[],
+    services: {
+        wifi: boolean;
+        kitchen: boolean;
+        breakfast: boolean;
+        pet: boolean;
+        parking: boolean;
+    },
+    refundPercent: number;
+    pricing: {
+        basePrice: number;
+        serviceFee: number;
+        cleaningFee: number;
+    }
+}
