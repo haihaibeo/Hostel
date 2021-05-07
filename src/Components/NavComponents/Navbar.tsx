@@ -1,16 +1,19 @@
 import React, { FC } from 'react';
-import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useDisclosure } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
 import { Link as RouterLink } from 'react-router-dom';
-import LoginButton from '../LoginButton';
-import RegisterButton from '../RegisterButton';
 import { AuthContext } from '../../Contexts/AuthContext';
-import { BsBell, BsBookmark, BsBoxArrowDown, BsCalendar, BsChevronDown } from 'react-icons/bs';
+import { BsBell, BsBookmark, BsBoxArrowDown, BsCalendar, BsChevronDown, BsHouse, BsLock, BsPerson } from 'react-icons/bs';
+import LoginForm from '../LoginForm';
 
 const Navbar: FC<BoxProps> = ({ ...props }) => {
     const auth = React.useContext(AuthContext);
     const [user, setUser] = React.useState(auth.user);
+    const loginFormModal = useDisclosure();
+    const initRef = React.useRef<HTMLInputElement>(null);
+    const [isRegistering, setIsRegistering] = React.useState(false);
+
 
     React.useEffect(() => {
         setUser(auth.user);
@@ -32,8 +35,19 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                     <ColorModeSwitcher />
                     {user === undefined ?
                         <>
-                            <LoginButton></LoginButton>
-                            <RegisterButton></RegisterButton>
+                            <Button variant="ghost" onClick={() => { loginFormModal.onOpen(); setIsRegistering(false); }}>Login</Button>
+                            <Modal isOpen={loginFormModal.isOpen} onClose={loginFormModal.onClose} size="xl" motionPreset="slideInBottom" isCentered initialFocusRef={initRef}>
+                                <ModalOverlay />
+
+                                <ModalContent>
+                                    <ModalHeader>{isRegistering ? "Sign up new account" : "Login"}</ModalHeader>
+                                    <ModalCloseButton />
+                                    <ModalBody pb="2">
+                                        <LoginForm initRef={initRef} isRegistering={isRegistering}></LoginForm>
+                                    </ModalBody>
+                                </ModalContent>
+                            </Modal>
+                            <Button variant="ghost" onClick={() => { loginFormModal.onOpen(); setIsRegistering(true); }}>Register</Button>
                         </> :
                         <>
                             <Menu>
@@ -51,7 +65,20 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                                     </MenuItem>
                                     <MenuItem as={RouterLink} to="/profile?view=notifications">
                                         <Box mr="3"><BsBell /></Box>
-                                        {"Notifications"}
+                                        Notifications
+                                    </MenuItem>
+                                    <MenuDivider />
+                                    <MenuItem as={RouterLink} to="/user/publish">
+                                        <Box mr="3"><BsLock /></Box>
+                                        Host your property
+                                    </MenuItem>
+                                    <MenuItem as={RouterLink} to="/user/publish">
+                                        <Box mr="3"><BsHouse /></Box>
+                                        Your properties
+                                    </MenuItem>
+                                    <MenuItem as={RouterLink} to="/">
+                                        <Box mr="3"><BsPerson /></Box>
+                                        Account
                                     </MenuItem>
                                     <MenuDivider />
                                     <MenuItem onClick={() => auth.logoutAsync()}>

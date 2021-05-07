@@ -109,7 +109,6 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
             });
             return;
         }
-        console.log(auth.user.token);
         mutateLike.mutate({ roomId: room.id, token: auth.user.token })
     }
 

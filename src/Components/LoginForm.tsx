@@ -1,4 +1,4 @@
-import { Box, FormControl, FormLabel, Input, Button, Checkbox, FormErrorMessage, chakra } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, Button, Checkbox, FormErrorMessage, chakra, useDisclosure, Collapse } from '@chakra-ui/react';
 import React from 'react'
 import { FaArrowRight } from 'react-icons/fa';
 import { useHistory } from 'react-router';
@@ -7,6 +7,15 @@ import { AuthContext } from '../Contexts/AuthContext';
 type LoginFormProps = {
     initRef?: React.RefObject<HTMLInputElement>;
     fromUrl?: string;
+    isRegistering: boolean;
+}
+
+type FormState = {
+    email?: string;
+    password?: string;
+    confirmedPassword?: string;
+    remember: boolean;
+    isRegistering: boolean;
 }
 
 function validateEmail(email: string | undefined) {
@@ -16,15 +25,17 @@ function validateEmail(email: string | undefined) {
 }
 
 
-const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl, isRegistering }) => {
     const history = useHistory();
 
-    const [loginForm, setLoginForm] = React.useState<LoginRequest>({
-        remember: false
+    const [loginForm, setLoginForm] = React.useState<FormState>({
+        remember: false,
+        isRegistering: isRegistering
     });
 
     const [emailError, setEmailError] = React.useState(false);
     const [passwordError, setPasswordError] = React.useState(false);
+    const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
 
     const validateForm = (email: string | undefined, password: string | undefined) => {
         if (validateEmail(email)) {
@@ -40,6 +51,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loginForm.email, loginForm.password])
 
+    React.useEffect(() => {
+        if (loginForm.isRegistering && loginForm.confirmedPassword === loginForm.password) {
+            console.log(loginForm.password);
+            console.log(loginForm.confirmedPassword);
+
+            setConfirmPasswordError(false);
+            console.log(confirmPasswordError);
+        } else setConfirmPasswordError(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loginForm.confirmedPassword, loginForm.isRegistering, loginForm.password])
+
     const authContext = React.useContext(AuthContext);
 
     const handleLogin = () => {
@@ -47,9 +69,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
         if (fromUrl) history.replace(fromUrl);
     }
 
+    const handleRegister = () => {
+        authContext.registerAsync({ email: loginForm.email, password: loginForm.password, confirmPassword: loginForm.confirmedPassword });
+        if (fromUrl) history.replace(fromUrl);
+    }
+
+    const toggleMode = () => {
+        setLoginForm((s) => ({
+            ...s,
+            isRegistering: !s.isRegistering
+        }))
+    }
+
     return (
-        <chakra.form>
-            <FormControl isRequired isDisabled={authContext.isLoading} isInvalid={emailError || passwordError} d="flex" flexDir="column">
+        <chakra.form d="flex" flexDir="column">
+            <FormControl isInvalid={emailError}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <Input placeholder="Enter your email" id="email" isInvalid={emailError} ref={initRef} variant="filled" size="lg" type="email"
                     value={loginForm.email} isRequired
@@ -58,29 +92,45 @@ const LoginForm: React.FC<LoginFormProps> = ({ initRef, fromUrl }) => {
                         email: e.target.value.trim()
                     }))}></Input>
                 <FormErrorMessage>{"Email not correct"}</FormErrorMessage>
+            </FormControl>
 
+            <FormControl isInvalid={passwordError}>
                 <FormLabel htmlFor="password" my="2">Password</FormLabel>
                 <Input placeholder="Enter your password" id="password" isInvalid={passwordError} variant="filled" size="lg" type="password"
-                    value={loginForm.password} required={true} minLength={1} isRequired
+                    value={loginForm.password} minLength={1} isRequired
                     onChange={(e) => setLoginForm(s => ({
                         ...s,
                         password: e.target.value
                     }))}></Input>
+            </FormControl>
 
-                <Checkbox size="lg" checked={loginForm.remember} mt="2"
-                    onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>
-                    Remember me
+            <Collapse in={loginForm.isRegistering}>
+                <FormControl isInvalid={confirmPasswordError}>
+                    <FormLabel htmlFor="confirm-password" my="2">Confirm Password</FormLabel>
+                    <Input placeholder="Confirm your password" id="confirm-password" isInvalid={confirmPasswordError} variant="filled" size="lg" type="password"
+                        value={loginForm.confirmedPassword} minLength={1} isRequired
+                        onChange={(e) => setLoginForm(s => ({
+                            ...s,
+                            confirmedPassword: e.target.value
+                        }))}></Input>
+                </FormControl>
+                <FormErrorMessage>{"Password does not match"}</FormErrorMessage>
+            </Collapse>
+
+            <Checkbox size="lg" checked={loginForm.remember} mt="2"
+                onChange={(e) => setLoginForm(s => ({ ...s, remember: e.target.checked }))}>
+                Remember me
                 </Checkbox>
 
-                <Button my="3" w="30%" rounded="full" type="submit" alignSelf="center" title="Login"
-                    isLoading={authContext.isLoading}
-                    isDisabled={emailError || passwordError}
-                    onClick={handleLogin}>
-                    <FaArrowRight />
-                </Button>
-            </FormControl>
-        </chakra.form>
+            <Button my="3" w="30%" rounded="full" type="submit" alignSelf="center" title="Login"
+                isLoading={authContext.isLoading}
+                isDisabled={loginForm.isRegistering ? emailError || passwordError || confirmPasswordError : emailError || passwordError}
+                onClick={!loginForm.isRegistering ? handleLogin : handleRegister}>
+                <FaArrowRight />
+            </Button>
 
+            <Button variant="link" alignSelf="center" textStyle="" onClick={() => toggleMode()}>{!loginForm.isRegistering ? "Register your account!" : "Or login instead!"}</Button >
+        </chakra.form>
     );
 }
 

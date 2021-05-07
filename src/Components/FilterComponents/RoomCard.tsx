@@ -1,4 +1,4 @@
-import { Badge, Box, Image, LinkOverlay, Text, Link } from '@chakra-ui/react';
+import { Badge, Box, Image, LinkOverlay, Text, Link, BoxProps, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { Link as LinkReact } from 'react-router-dom';
@@ -8,9 +8,9 @@ type RoomCardProps = {
     isSaved: boolean;
 }
 
-const RoomCard = ({ room, isSaved }: RoomCardProps) => {
+const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
     return (
-        <Box borderWidth="1px" borderRadius="lg">
+        <Box borderWidth="1px" borderRadius="lg" {...props} bg={useColorModeValue("gray.100", "gray.900")}>
             <Box overflow="hidden">
                 <Link as={LinkReact} to={"/rooms/" + room.id}>
                     <Image src={room.thumbnailUrl}
@@ -62,12 +62,15 @@ const RoomCard = ({ room, isSaved }: RoomCardProps) => {
                     </Box>
                 }
 
-                <Box d='flex' justifyContent="space-between" justifySelf="end">
+                <Box d='flex' flexWrap="wrap" justifySelf="end" alignItems="baseline" flexDir="row">
                     <Box as="h4" fontSize="3xl">
                         {room.formattedPrice + "$"}
                     </Box>
+                    <Box as="span" color="gray.500" fontStyle="italic">
+                        / per night
+                    </Box>
 
-                    <Box d="flex" alignItems="center">
+                    <Box d="flex" alignItems="center" alignSelf="center" ml="auto">
                         {Array(5).fill("").map((_, i) => {
                             return (i < Math.round(room.totalStar / room.totalReview) ? <BsStarFill key={i} colorRendering="teal.400" /> : <BsStar key={i} />)
                         })}

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 export const API_URL = "http://localhost:44344";
 const API_IMAGE_UPLOADER_URL = "https://api.imgur.com/3/upload";
@@ -21,6 +21,15 @@ axios.interceptors.response.use((response) => {
 //     req.headers.Authorization = `Client-ID : ${API_IMAGE_CLIENT_ID}`
 //     return req;
 // })
+
+type ReviewRequest = {
+    comment?: string;
+    reviewStar: number;
+    
+}
+export const postReview = () => {
+
+}
 
 export const postRoom = (data: PublishRoomState) => {
     return axios({
@@ -51,6 +60,14 @@ export const authenticate = (req: LoginRequest) => {
         });
 }
 
+export const register = (req: RegisterRequest) =>{
+    return axios.post<UserResponse>(API_URL + "/api/user/register-user", {
+        "email": req.email,
+        "password": req.password,
+        "confirmPassword": req.confirmPassword
+    })
+}
+
 export const fetchPropertyView = (typeId: string | null) => {
     let URI = `/api/properties`;
     if (typeId) {
@@ -79,6 +96,10 @@ export const fetchPropertyTypes = async () => {
 
 export const fetchProperty = async (id: string) => {
     return axios.get(API_URL + "/api/properties/" + id);
+}
+
+export const fetchUserReservation = async () => {
+    return axios.get<Reservation[]>(API_URL + "/api/reservations/user");
 }
 
 interface ToggleLikeProps {

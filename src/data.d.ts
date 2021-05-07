@@ -65,6 +65,10 @@ interface LoginRequest {
     remember?: boolean;
 }
 
+interface RegisterRequest extends LoginRequest {
+    confirmPassword?: string;
+}
+
 interface PublishRoomState {
     name: string;
     description: string;
@@ -74,6 +78,8 @@ interface PublishRoomState {
     streetName: string;
     addressDesc?: string;
     number: string;
+    maxGuest: number;
+    propTypeId: string;
     images: {
         url: string;
         alt?: string;
@@ -92,4 +98,15 @@ interface PublishRoomState {
         serviceFee: number;
         cleaningFee: number;
     }
+}
+
+interface Reservation {
+    id: string;
+    property: RoomCard;
+    fromDate: string;
+    toDate: string;
+    timeCreated: string;
+    total: number;
+    paymentStatus: string;
+    reservationStatus: string;
 }

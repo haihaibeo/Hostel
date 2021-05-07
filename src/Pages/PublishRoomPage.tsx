@@ -1,13 +1,14 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { Input } from '@chakra-ui/input';
-import { Box, BoxProps, Divider, SimpleGrid, VStack, Link, Flex } from '@chakra-ui/layout';
-import { Button, chakra, NumberInput, NumberInputField, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Switch, useToast } from '@chakra-ui/react';
+import { Box, BoxProps, Divider, SimpleGrid, VStack, Link, Flex, Spacer } from '@chakra-ui/layout';
+import { Button, chakra, IconButton, NumberInput, NumberInputField, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Switch, useToast } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/select';
 import { Textarea } from '@chakra-ui/textarea';
 import React, { FC } from 'react'
+import { FaMinus, FaPlus } from 'react-icons/fa';
 import { useMutation, useQuery } from 'react-query';
 import { Link as RouterLink, SwitchProps } from 'react-router-dom';
-import { deleteImage, fetchCities, postImage, postRoom } from '../API';
+import { deleteImage, fetchCities, fetchPropertyTypes, postImage, postRoom } from '../API';
 import { CityResponse } from '../Components/NavComponents/SearchBar';
 
 
@@ -32,11 +33,48 @@ const getUniqeCountries = (res: CityResponse[]) => {
 const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
     const toast = useToast();
     const [countries, setCountries] = React.useState<Country[]>();
-    const { data: cities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
+
+    const [room, setRoom] = React.useState<PublishRoomState>({
+        cityId: "1",
+        countryId: "",
+        description: "Test description",
+        images: [
+            {
+                url: "url",
+                alt: "alt",
+                deleteHash: "delHash"
+            }
+        ],
+        maxGuest: 0,
+        propTypeId: "",
+        introdution: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto minus ad assumenda dignissimos. Perferendis optio est nam accusamus aliquid voluptas?",
+        name: "Lorem ipsum",
+        refundPercent: 100,
+        number: "12",
+        streetName: "Street asdfgg",
+        services: {
+            breakfast: true,
+            kitchen: false,
+            parking: true,
+            pet: false,
+            wifi: true
+        },
+        pricing: {
+            basePrice: 250,
+            cleaningFee: 10,
+            serviceFee: 0
+        }
+    });
+
+    const { data: resCities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
         staleTime: 1000 * 60 * 10,
         onSuccess: (res) => {
             setCountries(getUniqeCountries(res));
         }
+    });
+
+    const { data: resTypes, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
+        staleTime: 1000 * 60 * 10
     });
 
     const publish = useMutation(postRoom, {
@@ -57,36 +95,6 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
     React.useEffect(() => {
         return function cleanup() { localStorage.removeItem("previewRoom"); }
     }, [])
-
-    const [room, setRoom] = React.useState<PublishRoomState>({
-        cityId: "1",
-        countryId: "",
-        description: "Test description",
-        images: [
-            {
-                url: "url",
-                alt: "alt",
-                deleteHash: "delHash"
-            }
-        ],
-        introdution: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto minus ad assumenda dignissimos. Perferendis optio est nam accusamus aliquid voluptas?",
-        name: "Lorem ipsum",
-        refundPercent: 100,
-        number: "12",
-        streetName: "Street asdfgg",
-        services: {
-            breakfast: true,
-            kitchen: false,
-            parking: true,
-            pet: false,
-            wifi: true
-        },
-        pricing: {
-            basePrice: 250,
-            cleaningFee: 10,
-            serviceFee: 0
-        }
-    });
 
     const handleImagesInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files != null) {
@@ -117,6 +125,16 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                     value={room.name}
                                     onChange={(e) => { setRoom((r) => ({ ...r, name: e.target.value })) }}
                                 />
+                            </FormControl>
+                            <FormControl isRequired id="prop-type">
+                                <FormLabel as="h2" fontSize="md">Property's Type</FormLabel>
+                                <Select variant="filled" placeholder="--Choose your property type--"
+                                    onChange={(e) => setRoom((r) => ({ ...r, propTypeId: e.target.value, cityId: "" }))}
+                                >
+                                    {resTypes?.map(rt => {
+                                        return <option value={rt.id} key={rt.id}>{rt.propertyType}</option>
+                                    })}
+                                </Select>
                             </FormControl>
                             <FormControl isRequired id="prop-description">
                                 <FormLabel as="h2" fontSize="md">Description</FormLabel>
@@ -157,7 +175,7 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                         setRoom((r) => ({ ...r, cityId: e.target.value }))
                                     }}
                                 >
-                                    {cities?.filter(ct => ct.countryId === room.countryId).map(c => {
+                                    {resCities?.filter(ct => ct.countryId === room.countryId).map(c => {
                                         return <option value={c.cityId} key={c.cityId}>{c.cityName}</option>
                                     })}
                                 </Select>
@@ -201,6 +219,23 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                         <Box as="h2" fontSize="lg" w={{ base: "100%", lg: "30%" }} mb="5">Services</Box>
                         <Box w="100%" >
                             <SimpleGrid minChildWidth="12em" spacingX="5rem" spacingY="2">
+                                <Flex gridGap="2" alignItems="center">
+                                    <Box as="h2" fontSize="md">
+                                        Max Guests
+                                </Box>
+                                    <Spacer />
+                                    <IconButton aria-label="Minus" size="sm" icon={<FaMinus />}
+                                        isDisabled={room.maxGuest <= 0}
+                                        onClick={() => setRoom((r) => ({ ...r, maxGuest: r.maxGuest-- }))}
+                                    />
+                                    <Box as="h3" fontSize="md" w="3ch" textAlign="center">
+                                        {room.maxGuest}
+                                    </Box>
+                                    <IconButton aria-label="Plus" size="sm" icon={<FaPlus />}
+                                        isDisabled={room.maxGuest >= 10}
+                                        onClick={() => setRoom((r) => ({ ...r, maxGuest: r.maxGuest++ }))}
+                                    />
+                                </Flex>
                                 <ServiceDisplay name="Wifi"
                                     isOn={room.services.wifi}
                                     toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, wifi: checked }) })) }}
@@ -290,21 +325,21 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
     );
 }
 
-interface ServiceDisplayProps extends SwitchProps {
+interface ServiceDisplayProps {
     name: string;
     id?: string;
     isOn: boolean;
     toggle: (checked: boolean) => void;
 }
 
-const ServiceDisplay: React.FC<ServiceDisplayProps> = ({ name, id, isOn, toggle, ...switchProps }) =>
+const ServiceDisplay: React.FC<ServiceDisplayProps & SwitchProps> = (props) =>
     <FormControl display="flex" alignItems="center" justifyContent="space-between" pr="2">
-        <FormLabel htmlFor={"service_" + name} mb="0" opacity={isOn ? 1 : 0.4}>
-            {name}
+        <FormLabel htmlFor={"service_" + props.name} mb="0" opacity={props.isOn ? 1 : 0.4}>
+            {props.name}
         </FormLabel>
-        <Switch id={"service_" + name} isChecked={isOn}
-            {...switchProps}
-            onChange={(e) => { toggle(e.target.checked) }} />
+        <Switch id={"service_" + props.name} isChecked={props.isOn}
+            {...props}
+            onChange={(e) => { props.toggle(e.target.checked) }} />
     </FormControl>
 
 export default PublishRoomPage;
