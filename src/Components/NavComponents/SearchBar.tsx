@@ -20,15 +20,13 @@ type SearchBarProps = {
     city?: string;
     from?: Date;
     to?: Date;
-    adultNum?: number;
+    guestNum?: number;
     childrenNum?: number;
-    bedRoom?: number;
 }
 
 const defaultValue: SearchBarProps = {
-    adultNum: 1,
+    guestNum: 0,
     childrenNum: 0,
-    bedRoom: 1
 }
 
 
@@ -50,14 +48,12 @@ const SearchBar = () => {
         }))
     }
 
-    const UpdatePeople = (adult: number, children: number, room: number) => {
+    const UpdatePeople = (adult: number, children: number) => {
         setForm(s => ({
             ...s,
             childrenNum: children,
-            adultNum: adult,
-            bedRoom: room
+            guestNum: adult,
         }))
-        console.log(adult, children, room);
     }
 
     return (<div>
@@ -68,17 +64,15 @@ const SearchBar = () => {
                     <Input list="datalist-cities" placeholder="City" size="lg" borderRadius="0" />
                     {isLoading ? <InputRightElement children={<Spinner alignSelf="center" />}></InputRightElement> :
                         <datalist id="datalist-cities" style={{}}>
-                            <Box>
-                                {cities?.map(c => {
-                                    return <option key={c.cityId} value={c.cityName} />
-                                })}
-                                {status === 'error' && <>
-                                    <option value="Hanoi" />
-                                    <option value="Moscow" />
-                                    <option value="Danang" />
-                                    <option value="Ivanovo" />
-                                </>}
-                            </Box>
+                            {cities?.map(c => {
+                                return <option key={c.cityId} value={c.cityName} />
+                            })}
+                            {status === 'error' && <>
+                                <option value="Hanoi" />
+                                <option value="Moscow" />
+                                <option value="Danang" />
+                                <option value="Ivanovo" />
+                            </>}
                         </datalist>
                     }
                 </InputGroup>
@@ -97,10 +91,14 @@ const SearchBar = () => {
                 </Popover>
                 <Popover>
                     <PopoverTrigger>
-                        <Button variant="outline" w={["100%", "100%", "100%", "150%"]} size="lg" borderRadius="0" px="2">{form.adultNum + ' adult(s) - ' + form.childrenNum + ' child(s) - ' + form.bedRoom + ' room(s)'}</Button>
+                        <Button variant="outline" w={["100%", "100%", "100%", "150%"]} size="lg"
+                            borderRadius="0" px="2"
+                        >
+                            {form.guestNum + ' guests - ' + form.childrenNum + ' children'}
+                        </Button>
                     </PopoverTrigger>
                     <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.5)">
-                        <PopDetail updatePeople={UpdatePeople} adult={form.adultNum!} bedRoom={form.bedRoom!} children={form.childrenNum!}></PopDetail>
+                        <PopDetail updatePeople={UpdatePeople} guest={form.guestNum!} children={form.childrenNum!}></PopDetail>
                     </PopoverContent>
                 </Popover>
                 <Button alignSelf="center" size="lg" minW="100px" ml={[0, 0, 0, 2]}

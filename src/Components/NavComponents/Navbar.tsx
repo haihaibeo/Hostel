@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useDisclosure } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useColorModeValue, useDisclosure } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
 import { Link as RouterLink } from 'react-router-dom';
@@ -9,15 +9,11 @@ import LoginForm from '../LoginForm';
 
 const Navbar: FC<BoxProps> = ({ ...props }) => {
     const auth = React.useContext(AuthContext);
-    const [user, setUser] = React.useState(auth.user);
     const loginFormModal = useDisclosure();
     const initRef = React.useRef<HTMLInputElement>(null);
     const [isRegistering, setIsRegistering] = React.useState(false);
 
-
-    React.useEffect(() => {
-        setUser(auth.user);
-    }, [auth.user])
+    const becomehostColor = useColorModeValue("cyan.200", "blue.400");
 
     return (
         <Box marginBottom={["5%"]} {...props}>
@@ -33,7 +29,7 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                 <Spacer />
                 <HStack spacing={4}>
                     <ColorModeSwitcher />
-                    {user === undefined ?
+                    {auth.user === undefined ?
                         <>
                             <Button variant="ghost" onClick={() => { loginFormModal.onOpen(); setIsRegistering(false); }}>Login</Button>
                             <Modal isOpen={loginFormModal.isOpen} onClose={loginFormModal.onClose} size="xl" motionPreset="slideInBottom" isCentered initialFocusRef={initRef}>
@@ -52,7 +48,7 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                         <>
                             <Menu>
                                 <MenuButton as={Button} variant="ghost" rightIcon={<BsChevronDown />}>
-                                    {user.name}
+                                    {auth.user.name}
                                 </MenuButton>
                                 <MenuList>
                                     <MenuItem as={RouterLink} to="/profile?view=likes">
@@ -68,14 +64,23 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                                         Notifications
                                     </MenuItem>
                                     <MenuDivider />
-                                    <MenuItem as={RouterLink} to="/user/publish">
-                                        <Box mr="3"><BsLock /></Box>
+                                    {auth.user.roles?.includes("Owner") ?
+                                        <>
+                                            <MenuItem as={RouterLink} to="/user/publish">
+                                                <Box mr="3"><BsLock /></Box>
                                         Host your property
-                                    </MenuItem>
-                                    <MenuItem as={RouterLink} to="/user/publish">
-                                        <Box mr="3"><BsHouse /></Box>
+                                        </MenuItem>
+                                            <MenuItem as={RouterLink} to="/user/publish">
+                                                <Box mr="3"><BsHouse /></Box>
                                         Your properties
-                                    </MenuItem>
+                                        </MenuItem>
+                                        </>
+                                        :
+                                        <MenuItem bg={becomehostColor} as={RouterLink} to="/user/register-host">
+                                            <Box mr="3"><BsLock /></Box>
+                                        Become a host
+                                        </MenuItem>
+                                    }
                                     <MenuItem as={RouterLink} to="/">
                                         <Box mr="3"><BsPerson /></Box>
                                         Account

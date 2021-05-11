@@ -2,7 +2,7 @@ import { Box, Divider } from '@chakra-ui/react';
 import React from 'react'
 import { useQuery } from 'react-query';
 import { useLocation } from 'react-router-dom';
-import { fetchPropertyView } from '../API';
+import { fetchPropertiesView } from '../API';
 import RoomCardList from '../Components/FilterComponents/RoomCardList';
 import SearchBar from '../Components/NavComponents/SearchBar';
 
@@ -12,7 +12,7 @@ const RoomsPage = () => {
     const queryStr = new URLSearchParams(useLocation().search);
     const queryTypeId = queryStr.get("typeId");
 
-    const { data, isLoading, error } = useQuery(["propertyView", queryTypeId], () => fetchPropertyView(queryTypeId), { staleTime: 1000 * 60 })
+    const { data, isLoading, error } = useQuery(["propertyView", queryTypeId], () => fetchPropertiesView(queryTypeId), { staleTime: 1000 * 60 })
 
     if (error) {
         return <>Error</>

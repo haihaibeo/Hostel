@@ -5,11 +5,21 @@ const API_IMAGE_UPLOADER_URL = "https://api.imgur.com/3/upload";
 const API_IMAGE_CLIENT_ID = "30ca2ca5dd1f71d";
 // const API_IMAGE_CLIENT_SECRET = "5e497c2ba20ff36c20aa512366ddee25300c56e1";
 
-axios.interceptors.response.use((response) => {
+export const axAuth = axios.create();
+
+axAuth.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    config.headers.Authorization = `Bearer ${token}`;
+
+    return config;
+})
+
+axAuth.interceptors.response.use((response) => {
     return response;
 }, function (error) {
     if (error.response.status === 401) {
         console.log('unauthorized, logging out ...');
+        localStorage.removeItem("token");
     }
     // else if(error.response.status === 404){
     //     return Promise.reject("Connection error")
@@ -32,14 +42,14 @@ export const postReview = () => {
 }
 
 export const postRoom = (data: PublishRoomState) => {
-    return axios({
+    return axAuth({
         method: "POST",
         url: API_URL + "/api/properties/",
         data: data,
     })
 }
 
-export const postImage = (data : any) => axios({
+export const postImage = (data : any) => axAuth({
     method: "post",
     url: API_IMAGE_UPLOADER_URL,
     data: data,
@@ -48,17 +58,19 @@ export const postImage = (data : any) => axios({
     },
 })
 
-export const deleteImage = (delHash: string) => axios({
+export const deleteImage = (delHash: string) => axAuth({
     method: "DELETE",
     url: `https://api.imgur.com/3/image/${delHash}`,
 })
 
 export const authenticate = (req: LoginRequest) => {
-    return axios.post<UserResponse>(API_URL + "/api/user/authenticate", {
+    return axAuth.post<UserResponse>(API_URL + "/api/user/authenticate", {
             "email": req.email,
             "password": req.password
         });
 }
+
+export const registerHost = () => axAuth.post<UserResponse>(API_URL + "/api/user/register-host");
 
 export const register = (req: RegisterRequest) =>{
     return axios.post<UserResponse>(API_URL + "/api/user/register-user", {
@@ -68,16 +80,16 @@ export const register = (req: RegisterRequest) =>{
     })
 }
 
-export const fetchPropertyView = (typeId: string | null) => {
+export const fetchPropertiesView = (typeId: string | null) => {
     let URI = `/api/properties`;
     if (typeId) {
         URI += `?typeId=${typeId}`;
     }
-    return axios.get(API_URL + URI);
+    return axAuth.get<RoomCard[]>(API_URL + URI);
 }
 
 export const fetchCities = async () => {
-    // const res = await axios({
+    // const res = await ax({
     //     method: "GET",
     //     url: URL + "api/city",
     //     timeout: 5000
@@ -94,12 +106,16 @@ export const fetchPropertyTypes = async () => {
     return data;
 }
 
-export const fetchProperty = async (id: string) => {
-    return axios.get(API_URL + "/api/properties/" + id);
+export const fetchPropertyById = async (id: string) => {
+    return axAuth.get(API_URL + "/api/properties/" + id);
+}
+
+export const fetchPropertiesSaved = () => {
+    return axAuth.get<RoomCard[]>(API_URL + "/api/properties/saved");
 }
 
 export const fetchUserReservation = async () => {
-    return axios.get<Reservation[]>(API_URL + "/api/reservations/user");
+    return axAuth.get<Reservation[]>(API_URL + "/api/reservations/user");
 }
 
 interface ToggleLikeProps {
@@ -112,7 +128,7 @@ type ToggleLikeResponse = {
 }
 
 export const toggleLike = ({roomId, token}: ToggleLikeProps) => {
-    return axios.post<ToggleLikeResponse>(`${API_URL}/api/likes/${roomId}`,{},{
+    return axAuth.post<ToggleLikeResponse>(`${API_URL}/api/likes/${roomId}`,{},{
         headers:{
             Authorization: `Bearer ${token}`
         }

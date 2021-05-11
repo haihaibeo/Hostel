@@ -1,4 +1,4 @@
-import { Badge, Box, Image, LinkOverlay, Text, Link, BoxProps, useColorModeValue } from '@chakra-ui/react';
+import { Badge, Box, Image, LinkOverlay, Text, Link, BoxProps, useColorModeValue, Spacer } from '@chakra-ui/react';
 import React from 'react';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { Link as LinkReact } from 'react-router-dom';
@@ -10,15 +10,18 @@ type RoomCardProps = {
 
 const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
     return (
-        <Box borderWidth="1px" borderRadius="lg" {...props} bg={useColorModeValue("gray.100", "gray.900")}>
-            <Box overflow="hidden">
+        <Box borderWidth="1px" borderRadius="lg" {...props} bg={useColorModeValue("gray.100", "gray.900")} d="flex" flexDir="column">
+            <Box overflow="hidden" minH="200px">
                 <Link as={LinkReact} to={"/rooms/" + room.id}>
                     <Image src={room.thumbnailUrl}
+                        fallback={<Box bgColor="gray" color="gray" />}
                         alt={room.thumbnailAlt} overflow="hidden"
                         style={{ transition: "ease 0.5s" }}
                         _hover={{ transform: "scale(1.1)" }} />
                 </Link>
             </Box>
+
+            <Spacer />
 
             <Box p="4" d="flex" flexDir="column">
                 {!isSaved &&

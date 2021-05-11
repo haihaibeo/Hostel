@@ -12,6 +12,7 @@ interface RoomCard {
 }
 
 interface Room extends RoomCard {
+    maxGuest: number;
     images: {
         id?: string,
         alt?: string,
@@ -30,9 +31,9 @@ interface Room extends RoomCard {
 }
 
 interface UserResponse {
-    userId: string;
     name: string;
     email: string;
+    roles: string[] | string;
     token: string;
 }
 

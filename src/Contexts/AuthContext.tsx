@@ -1,45 +1,95 @@
 import { useToast } from '@chakra-ui/toast';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 import React from 'react';
-import { useMutation, useQuery } from 'react-query';
-import { API_URL, authenticate, register, validateToken } from '../API';
+import { QueryClient, useMutation } from 'react-query';
+import { authenticate, register, validateToken } from '../API';
 
+interface UserTokenPayload extends JwtPayload {
+    roles: string[] | string;
+    email: string;
+    name: string;
+}
 
 type AuthContextStates = {
     loginAsync: (request: LoginRequest) => any
     registerAsync: (request: RegisterRequest) => any
     logoutAsync: () => Promise<void>;
+    updateToken: (token: string) => void;
     user?: UserResponse;
     isLoading: boolean;
 }
 
+type AuthProviderProps = {
+    queryClient?: QueryClient;
+}
+
 export const AuthContext = React.createContext<AuthContextStates>({} as AuthContextStates);
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, queryClient }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [user, setUser] = React.useState<UserResponse | undefined>(undefined);
+    const [token, setToken] = React.useState(localStorage.getItem("token"));
+
     const toast = useToast();
 
-    // TODO: fix token validation
-    const validation = useQuery(["validateToken", user?.token], () => { if (user?.token) return validateToken(user?.token) }, {
-        refetchInterval: 1000 * 60,
-        staleTime: 1000 * 60 * 60 * 24,
-        onSuccess: () => {
-            axios.interceptors.request.use((config) => {
-                if (user?.token) {
-                    config.headers.Authorization = `Bearer ${user.token}`;
-                }
-                return config;
-            }, (e) => {
-                return Promise.reject(e);
+    /**
+     * Check for token in localStorage
+     */
+    React.useEffect(() => {
+        const tokenStorage = localStorage.getItem("token");
+        if (tokenStorage) {
+            validateToken(tokenStorage).then(res => {
+                console.log("validating...")
+                if (res.status !== 200) return logoutAsync("Token expired");
+            })
+            setToken(tokenStorage);
+        }
+    }, [])
+
+    /**
+     * If token changes, update user and axios.interceptor
+     */
+    React.useEffect(() => {
+        if (token) {
+            console.log("-------token changed------", token)
+            const decodedUser = jwtDecode<UserTokenPayload>(token);
+            setUser({
+                email: decodedUser.email,
+                name: decodedUser.name,
+                roles: decodedUser.roles,
+                token: token
             })
         }
-    })
+    }, [token]);
+
+    const updateToken = (token: string) => {
+        setToken(token);
+    }
+
+
+    // TODO: fix token validation
+    // const validation = useQuery(["validateToken", user?.token], () => {
+    //     if (user?.token) return validateToken(user?.token)
+    // }, {
+    //     refetchInterval: 1000 * 60,
+    //     staleTime: 1000 * 60 * 60 * 24,
+    //     onSuccess: () => {
+    //         axios.interceptors.request.use((config) => {
+    //             if (user?.token) {
+    //                 config.headers.Authorization = `Bearer ${user.token}`;
+    //             }
+    //             return config;
+    //         }, (e) => {
+    //             return Promise.reject(e);
+    //         })
+    //     }
+    // })
 
     const mutateLogin = useMutation<AxiosResponse<UserResponse>, any, LoginRequest>(authenticate, {
         onSuccess: (res) => {
-            setUser(res.data);
-            localStorage.setItem("user", JSON.stringify(res.data));
+            setToken(res.data.token);
+            localStorage.setItem("token", res.data.token);
             toast({ description: "Logged in successfully", status: "success", duration: 3000 });
         },
         onError: (res) => { toast({ description: res.data.message, status: "error", duration: 3000 }) },
@@ -48,8 +98,9 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     const mutateRegister = useMutation<AxiosResponse<UserResponse>, any, RegisterRequest>(register, {
         onSuccess: (res) => {
-            setUser(res.data);
-            localStorage.setItem("user", JSON.stringify(res.data));
+            // setUser(res.data);
+            setToken(res.data.token);
+            localStorage.setItem("token", res.data.token);
             toast({ description: "Logged in successfully", status: "success", duration: 3000 });
         },
         onError: (res) => {
@@ -61,51 +112,11 @@ export const AuthProvider: React.FC = ({ children }) => {
         onSettled: () => setIsLoading(false)
     })
 
-
-
-    /**
-     * Check for user in localStorage
-     */
-    React.useEffect(() => {
-        const foundUser = localStorage.getItem("user");
-        if (foundUser) {
-            const user = JSON.parse(foundUser) as UserResponse;
-
-            validateToken(user.token).then(res => {
-                console.log("validating...")
-                console.log(res);
-                if (res.status !== 200) return logoutAsync("Token expired");
-            })
-
-            setUser(user);
-            axios.interceptors.request.use((config) => {
-                if (user.token) {
-                    config.headers.Authorization = `Bearer ${user.token}`;
-                }
-                return config;
-            }, (e) => {
-                return Promise.reject(e);
-            })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    /**
-     * When user is initialized, attach token to every request
-     */
-    React.useEffect(() => {
-        axios.interceptors.request.use((config) => {
-            if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
-            return config;
-        }, (e) => {
-            return Promise.reject(e);
-        })
-    }, [user])
-
     const logoutAsync = async (msg?: string) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setUser(undefined);
-        localStorage.removeItem("user");
+        setToken(null);
+        localStorage.removeItem("token");
         toast({
             title: msg ? msg : "Logged out successfully!",
             isClosable: true,
@@ -113,7 +124,6 @@ export const AuthProvider: React.FC = ({ children }) => {
             status: "success"
         })
         await new Promise(resolve => setTimeout(resolve, 500));
-        // window.location.reload();
     }
 
     const loginAsync = async (request: LoginRequest) => {
@@ -147,6 +157,7 @@ export const AuthProvider: React.FC = ({ children }) => {
         <AuthContext.Provider value={{
             loginAsync: loginAsync,
             logoutAsync: logoutAsync,
+            updateToken: updateToken,
             isLoading: isLoading,
             user: user,
             registerAsync: registerAsync

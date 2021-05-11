@@ -1,15 +1,11 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, Spinner, Progress, useDisclosure, Collapse, Tooltip } from '@chakra-ui/react';
-import { userInfo } from 'os';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, useDisclosure, Collapse, Tooltip } from '@chakra-ui/react';
 import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
 import { useMutation, useQuery } from 'react-query';
-import { Link, Redirect, useParams } from 'react-router-dom';
-import LoadingBar from 'react-top-loading-bar';
-import { fetchProperty, toggleLike } from '../API';
-import Navbar from '../Components/NavComponents/Navbar';
+import { Link, useParams } from 'react-router-dom';
+import { fetchPropertyById, toggleLike } from '../API';
 import PickRangeDay, { getDatesBetween } from '../Components/NavComponents/PickRangeDay';
 import PopDetail from '../Components/NavComponents/PopDetail';
-import SearchBar from '../Components/NavComponents/SearchBar';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
 import { AuthContext } from '../Contexts/AuthContext';
 
@@ -33,15 +29,14 @@ type BookingInfo = {
     bookFromDate?: Date;
     bookToDate?: Date;
     children: number;
-    adult: number;
-    roomQuant: number;
+    guest: number;
 }
 
 const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
     const auth = React.useContext(AuthContext);
 
     const [room, setRoom] = React.useState(defaultRoom);
-    const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ adult: 1, children: 0, roomQuant: 1 });
+    const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ guest: 0, children: 0 });
     const [owner, setOwner] = React.useState<OwnerInfo>();
     const [didLike, setDidLike] = React.useState(false);
 
@@ -50,7 +45,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
 
     const { data, isError, error, isLoading } = useQuery(["property", slug],
         () => {
-            return fetchProperty(slug);
+            return fetchPropertyById(slug);
         },
         {
             // staleTime: 1000 * 60 * 3,
@@ -91,12 +86,11 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
         }));
     }
 
-    const updatePeople = (adult: number, children: number, room: number) => {
+    const updatePeople = (adult: number, children: number) => {
         setBookInfo((s) => ({
             ...s,
-            adult: adult,
+            guest: adult,
             children: children,
-            roomQuant: room
         }));
     }
 
@@ -229,7 +223,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
 type FloatingFormProps = {
     room: Room;
     bookInfo: BookingInfo;
-    updatePeople: (adult: number, children: number, room: number) => void;
+    updatePeople: (adult: number, children: number) => void;
     updateDate: (from?: Date | undefined, to?: Date | undefined) => void
 }
 
@@ -283,16 +277,22 @@ const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate,
                             </Button>
                         </HStack>
                     </PopoverTrigger>
-                    <PopoverContent flexWrap="nowrap" alignItems="center" w="550px" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
+                    <PopoverContent flexWrap="nowrap" alignItems="center" w="550px"
+                        style={{ backdropFilter: "blur(5px)" }}
+                        borderRadius="0" bg="inherit"
+                        bgColor="rgba(66, 153, 225, 0.5)"
+                    >
                         <PickRangeDay schedules={{ reservedDates: room.reservedDates, dayOff: room.daysOff }} updateDate={updateDate} />
                     </PopoverContent>
                 </Popover>
                 <Popover>
                     <PopoverTrigger>
-                        <Button variant="outline" w="100%" size="lg" borderRadius="0" borderBottomRadius="lg" px="2">{bookInfo.adult + ' adult(s) - ' + bookInfo.children + ' child(s) - ' + bookInfo.roomQuant + ' room(s)'}</Button>
+                        <Button variant="outline" w="100%" size="lg" borderRadius="0" borderBottomRadius="lg" px="2">{bookInfo.guest + ' guests - ' + bookInfo.children + ' children'}</Button>
                     </PopoverTrigger>
-                    <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit" bgColor="rgba(66, 153, 225, 0.8)">
-                        <PopDetail updatePeople={updatePeople} adult={bookInfo.adult} bedRoom={bookInfo.roomQuant} children={bookInfo.children}></PopDetail>
+                    <PopoverContent flexWrap="nowrap" borderRadius="0" bg="inherit"
+                        bgColor="rgba(66, 153, 225, 0.5)"
+                    >
+                        <PopDetail updatePeople={updatePeople} guest={bookInfo.guest} children={bookInfo.children} maxGuest={room.maxGuest}></PopDetail>
                     </PopoverContent>
                 </Popover>
             </Box>
@@ -343,6 +343,7 @@ const defaultRoom: Room = {
     id: "1",
     name: "Crystal palace",
     thumbnailUrl: "https://bit.ly/2Z4KKcF",
+    maxGuest: 1,
     images: [
         { url: "https://picsum.photos/1100/1000" },
         { url: "https://picsum.photos/700/1200" },

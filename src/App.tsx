@@ -21,8 +21,9 @@ import Navbar from "./Components/NavComponents/Navbar";
 import PublishRoomPage from "./Pages/PublishRoomPage";
 import LoginForm from "./Components/LoginForm";
 import LoadingBar from "react-top-loading-bar";
-import axios from "axios";
 import PreviewRoomPage from "./Pages/PreviewRoomPage";
+import RegisterHostPage from "./Pages/RegisterHostPage";
+import { axAuth } from "./API";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
@@ -46,7 +47,7 @@ export const App = () => {
   React.useEffect(() => {
     loadingRef.current.complete();
 
-    axios.interceptors.request.use((config) => {
+    axAuth.interceptors.request.use((config) => {
       loadingRef.current.staticStart();
       return config;
     }, (e) => {
@@ -54,7 +55,7 @@ export const App = () => {
       return Promise.reject(e);
     })
 
-    axios.interceptors.response.use((config) => {
+    axAuth.interceptors.response.use((config) => {
       loadingRef.current.complete();
       return config;
     }, (e) => {
@@ -63,13 +64,12 @@ export const App = () => {
     })
 
   }, [])
-
   return (
     <HashRouter basename="/">
       <ChakraProvider theme={myTheme}>
         <QueryClientProvider client={queryClient}>
           <Box d="flex" flexDir="column" minH="100vh">
-            <AuthProvider>
+            <AuthProvider queryClient={queryClient}>
               <ScrollToTop />
               <Box flex="1">
                 <LoadingBar color="#f11946" ref={loadingRef}></LoadingBar>
@@ -85,13 +85,17 @@ export const App = () => {
                   />
                   <Box mx="10%" mt="5">
                     <Navbar></Navbar>
-                    <Route exact path="/rooms/:slug" component={SingleRoom} />
-                    <Route exact path="/rooms" component={RoomsPage} />
-                    <Route exact path="/room/preview" component={PreviewRoomPage} />
-                    <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
-                    <AuthRoute exact path="/user/publish" component={PublishRoomPage}></AuthRoute>
+                    <Switch>
+                      <Route exact path="/rooms/:slug" component={SingleRoom} />
+                      <Route exact path="/rooms" component={RoomsPage} />
+                      <Route exact path="/room/preview" component={PreviewRoomPage} />
+                      <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
+                      <AuthRoute exact path="/user/publish" component={PublishRoomPage}></AuthRoute>
+                      <AuthRoute exact path="/user/register-host" component={RegisterHostPage}></AuthRoute>
+                      <RoleRoute roles={["Admin"]} exact path="/admin"></RoleRoute>
+                      <Route component={ErrorPage} />
+                    </Switch>
                   </Box>
-                  <Route component={ErrorPage} />
                 </Switch>
               </Box>
             </AuthProvider>
@@ -123,7 +127,7 @@ const LoginPage = () => {
   return (
     <Box mx="20%" mt="10" flex="0">
       <Navbar />
-      <LoginForm></LoginForm>
+      <LoginForm isRegistering={false}></LoginForm>
     </Box>
   );
 }
@@ -140,6 +144,46 @@ const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       }
     }} />
   </Route>)
+}
+
+type RoleRouteProps = {
+  roles: string[];
+}
+
+const RoleRoute = (props: RoleRouteProps & RouteProps) => {
+  const { roles, children, ...rest } = props;
+  const auth = React.useContext(AuthContext);
+
+  if (!auth.user) return (<Route {...rest}>
+    <Redirect to={{
+      pathname: "/login",
+      state: {
+        from: rest.path
+      }
+    }} />
+  </Route>)
+
+  const ifContainsAll = (haystack?: string[] | string, needles?: string[]) => {
+    if (!haystack) return false;
+    if (!needles) return true;
+
+    for (const n of needles) {
+      if (!haystack.includes(n)) return false;
+    }
+    return true;
+  }
+
+  if (ifContainsAll(auth.user?.roles, roles)) return (<Route {...rest}>{children}</Route>)
+  else return (
+    <Route {...rest}>
+      <Redirect to={{
+        pathname: "/error",
+        state: {
+          message: "You are not authorized"
+        }
+      }}></Redirect>
+    </Route>
+  )
 }
 
 const ScrollToTop = () => {

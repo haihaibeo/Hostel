@@ -4,7 +4,7 @@ import { BsStar, BsStarFill } from 'react-icons/bs';
 import { FaCheck, FaStar, FaUserShield } from 'react-icons/fa';
 import { useQuery } from 'react-query';
 import { useLocation } from 'react-router';
-import { fetchUserReservation, toggleLike } from '../API';
+import { fetchPropertiesSaved, fetchUserReservation, toggleLike } from '../API';
 import RoomCard from '../Components/FilterComponents/RoomCard';
 import { AuthContext } from '../Contexts/AuthContext';
 
@@ -52,7 +52,7 @@ const ProfilePage = () => {
 
             {/* RIGHT */}
             <Box w={{ base: "100%", md: "65%" }}>
-                {(view === "likes" || view === null) && <UserLikesProperties userToken={user?.token}></UserLikesProperties>}
+                {(view === "likes" || view == null) && <UserLikesProperties></UserLikesProperties>}
                 {view === "notifications" && <Notifications></Notifications>}
                 {view === "reservations" && <Reservations></Reservations>}
             </Box>
@@ -84,12 +84,13 @@ const ReviewModal = (modalProps: ModalProps & ReviewModalProps) => {
                                 return (
                                     <IconButton variant="ghost" aria-label="star" key={index}
                                         onClick={() => { setStarReview(index + 1) }}
+                                        _focus={{ borderWidth: "1px" }}
                                         borderRadius="full" onMouseOver={() => setStarHover(index + 1)} onMouseLeave={() => setStarHover(0)}
                                         icon={starHover > index || starReview > index ? <BsStarFill color={starColor} /> : <BsStar />} />)
                             })}
                         </Box>
                         <Textarea size="md" placeholder="Please describe some of your thoughts" />
-                        <Button ml="auto" isDisabled={starReview < 0}>Send</Button>
+                        <Button ml="auto" isDisabled={starReview <= 0}>Send</Button>
                     </Flex>
                 </ModalBody>
             </ModalContent>
@@ -99,8 +100,9 @@ const ReviewModal = (modalProps: ModalProps & ReviewModalProps) => {
 
 const Reservations = (boxprops: BoxProps) => {
     const reviewModal = useDisclosure();
+    const auth = React.useContext(AuthContext)
 
-    const { data } = useQuery("reservations", fetchUserReservation, {
+    const { data, error, isError } = useQuery(["reservations", auth.user?.token], fetchUserReservation, {
         onSuccess: (res) => {
             console.log(res);
         },
@@ -113,6 +115,8 @@ const Reservations = (boxprops: BoxProps) => {
             You don't have any reservations
         </Box>
     }
+
+    if (isError) return <Box>Something's wrong</Box>
 
     return <Box>
         <Flex gridGap="2" flexDir="column">
@@ -161,17 +165,20 @@ const Reservations = (boxprops: BoxProps) => {
     </Box>
 }
 
-type LikesProps = {
-    userToken?: string;
-}
+const UserLikesProperties = () => {
+    const { data } = useQuery("propertiesLiked", () => fetchPropertiesSaved(), {
+        onSuccess: (res) => {
+        },
+        refetchOnMount: "always",
+    })
 
-const UserLikesProperties: React.FC<LikesProps> = ({ userToken, children }) => {
-    const rooms: RoomCard[] = defaultRooms;
+    if (data?.data.length === 0) return <Box>Looks like you didn't save any room</Box>
+
     return (
         <Box>
             <Box as={"h1"} fontFamily={"heading"} fontWeight="bold" fontSize="4xl" mb="3">Rooms that you saved</Box>
-            <SimpleGrid spacing="4" columns={[1, 2, 2, 3]}>
-                {rooms.map(r => <RoomCard room={r} key={r.id} isSaved={true} />)}
+            <SimpleGrid spacing="4" columns={{ base: 1, lg: 2 }}>
+                {data?.data.map(r => <RoomCard room={r} key={r.id} isSaved={true} />)}
             </SimpleGrid>
         </Box>
     );
