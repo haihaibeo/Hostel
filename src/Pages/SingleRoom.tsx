@@ -1,9 +1,9 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, useDisclosure, Collapse, Tooltip } from '@chakra-ui/react';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, Popover, PopoverContent, PopoverTrigger, HStack, Flex, VStack, Avatar, useToast, useDisclosure, Collapse, Tooltip, Spinner } from '@chakra-ui/react';
 import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
 import { useMutation, useQuery } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
-import { fetchPropertyById, toggleLike } from '../API';
+import { fetchPricing, fetchPropertyById, toggleLike } from '../API';
 import PickRangeDay, { getDatesBetween } from '../Components/NavComponents/PickRangeDay';
 import PopDetail from '../Components/NavComponents/PopDetail';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
@@ -23,20 +23,11 @@ type OwnerInfo = {
     profileImageUrl?: string;
 }
 
-type BookingInfo = {
-    roomId?: string;
-    userId?: string;
-    bookFromDate?: Date;
-    bookToDate?: Date;
-    children: number;
-    guest: number;
-}
-
 const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
     const auth = React.useContext(AuthContext);
 
     const [room, setRoom] = React.useState(defaultRoom);
-    const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ guest: 0, children: 0 });
+    const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ guest: 0, children: 0, roomId: room.id });
     const [owner, setOwner] = React.useState<OwnerInfo>();
     const [didLike, setDidLike] = React.useState(false);
 
@@ -209,7 +200,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
 
                     {/* another datepicker here */}
                     <Box w="100%" display={{ md: "none", lg: "block" }}>
-                        <PickRangeDay updateDate={updateDate}></PickRangeDay>
+                        <PickRangeDay schedules={{ reservedDates: room.reservedDates, dayOff: room.daysOff }} updateDate={updateDate} />
                     </Box>
                     <Divider my="3" />
 
@@ -224,14 +215,35 @@ type FloatingFormProps = {
     room: Room;
     bookInfo: BookingInfo;
     updatePeople: (adult: number, children: number) => void;
-    updateDate: (from?: Date | undefined, to?: Date | undefined) => void
+    updateDate: (from?: Date | undefined, to?: Date | undefined) => void;
 }
 
 
 // TODO: Lazily fetch reservation info when pop over open
 const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate, updatePeople }) => {
+    const auth = React.useContext(AuthContext);
     const feeCollapse = useDisclosure();
     const [nightCount, setNightCount] = React.useState<number>(0);
+    const toast = useToast();
+
+    const checkPricing = useQuery(["pricing", bookInfo], () => {
+        if (bookInfo.roomId && bookInfo.bookFromDate && bookInfo.bookToDate) {
+            return fetchPricing(bookInfo)
+        }
+    }, {
+        onSuccess: (data) => console.log(data?.data),
+        staleTime: 1000 * 60
+    })
+
+    const handleCheckout = () => {
+        if (!auth.user) toast({
+            description: "Login is required",
+            status: "info",
+            isClosable: true
+        })
+    }
+
+    let price = checkPricing.data?.data;
 
     React.useEffect(() => {
         if (bookInfo.bookFromDate && bookInfo.bookToDate) {
@@ -297,39 +309,66 @@ const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate,
                 </Popover>
             </Box>
 
-            <Button variant="solid" colorScheme="green" alignSelf="stretch" mt="4">Check for reservation</Button>
+            <Button variant="solid" colorScheme="green" alignSelf="stretch" mt="4"
+                isDisabled={!feeCollapse.isOpen}
+                onClick={handleCheckout}
+            >
+                {!feeCollapse.isOpen ? "Choose dates to see detail" : "Proceed checkout"}
+            </Button>
             <Box alignSelf="center" my="2" fontWeight="thin" fontStyle="oblique">You won't be charged yet</Box>
 
             {/* Fee details */}
             <Collapse in={feeCollapse.isOpen}>
                 <Box fontSize="lg">
                     <Flex alignItems="baseline">
-                        <Tooltip label={nightCount && `You are currently booking ${nightCount} night(s)`}
+                        <Tooltip label={nightCount && `You are currently booking ${price?.nightCount} night(s)`}
                             placement="left" hasArrow>
-                            <Box fontWeight="light" textDecoration="underline">{room.formattedPrice}$ x {nightCount} nights</Box>
+                            <Box fontWeight="light" textDecoration="underline">{room.formattedPrice}$ x {price?.nightCount} nights</Box>
                         </Tooltip>
                         <Spacer />
-                        <Box fontFamily="mono" >{`${room.formattedPrice * nightCount}$`}</Box>
+                        {checkPricing.isLoading ? <Spinner /> :
+                            <Box fontFamily="mono" >{price && `${price?.pricePerNight * price?.nightCount} $`}</Box>
+                        }
                     </Flex>
                     <Flex alignItems="baseline">
                         <Tooltip label="The owner keeps your place in highest cleanliness" placement="left" hasArrow>
                             <Box fontWeight="light" textDecoration="underline">Cleaning fee</Box>
                         </Tooltip>
                         <Spacer />
-                        <Box fontFamily="mono">{room.cleaningFee} $</Box>
+                        {checkPricing.isLoading ? <Spinner /> :
+                            <Box fontFamily="mono">{price?.cleaningFee} $</Box>
+                        }
                     </Flex>
                     <Flex alignItems="baseline">
                         <Tooltip label="This helps us run our platform and offer services like 24/7 support on your trip. It includes VAT." placement="left" hasArrow>
                             <Box fontWeight="light" textDecoration="underline">Service fee</Box>
                         </Tooltip>
                         <Spacer />
-                        <Box fontFamily="mono">{room.serviceFee} $</Box>
+                        {checkPricing.isLoading ? <Spinner /> :
+                            <Box fontFamily="mono">{price?.serviceFee} $</Box>
+                        }
+                    </Flex>
+                    <Flex alignItems="baseline">
+                        <Tooltip label="We offer you discount based on your reservation!" placement="left" hasArrow>
+                            <Box fontWeight="light" textDecoration="underline">
+                                Discount
+                                <Box as="span" textDecoration="none" mx="2">
+                                    {price ? price.discountPercent + "%" : "0%"}
+                                </Box>
+                            </Box>
+                        </Tooltip>
+                        <Spacer />
+                        {checkPricing.isLoading ? <Spinner /> :
+                            <Box fontFamily="mono">{price?.discount} $</Box>
+                        }
                     </Flex>
                     <Divider my="2" colorScheme="green" variant="dashed" />
                     <Flex fontWeight="black" fontSize="3xl">
                         <Box fontFamily="mono">Total</Box>
                         <Spacer />
-                        <Box fontFamily="mono">{room.formattedPrice * nightCount + room.cleaningFee + room.serviceFee} $</Box>
+                        {checkPricing.isLoading ? <Spinner /> :
+                            <Box fontFamily="mono">{price?.totalCost} $</Box>
+                        }
                     </Flex>
                 </Box>
             </Collapse>

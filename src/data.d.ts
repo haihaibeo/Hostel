@@ -101,6 +101,27 @@ interface PublishRoomState {
     }
 }
 
+interface BookingInfo {
+    roomId?: string;
+    userId?: string;
+    bookFromDate?: Date;
+    bookToDate?: Date;
+    children: number;
+    guest: number;
+}
+
+type AppRole = "User" | "Owner" | "Admin"
+
+interface CheckPricingResponse {
+    nightCount: number;
+    pricePerNight: number;
+    serviceFee: number;
+    cleaningFee: number;
+    discount: number;
+    discountPercent: number;
+    totalCost: number;
+}
+
 interface Reservation {
     id: string;
     property: RoomCard;
@@ -110,4 +131,13 @@ interface Reservation {
     total: number;
     paymentStatus: string;
     reservationStatus: string;
+}
+
+interface SearchQuery {
+    country?: string;
+    city?: string;
+    from?: Date;
+    to?: Date;
+    guestNum: number;
+    childrenNum: number;
 }

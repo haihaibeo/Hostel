@@ -275,7 +275,7 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                 </Box>
                             }
                             <Slider value={room.refundPercent} min={0} max={100} step={5} colorScheme="blue"
-                                onChange={(percent) => { setRoom((r) => ({ ...r, refundPercent: percent })) }}>
+                                onChangeEnd={(percent) => { setRoom((r) => ({ ...r, refundPercent: percent })) }}>
                                 <SliderTrack>
                                     <SliderFilledTrack />
                                 </SliderTrack>

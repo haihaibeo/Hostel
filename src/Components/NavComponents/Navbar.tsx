@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
-import { Box, BoxProps, Button, Center, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useColorModeValue, useDisclosure } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Center, DarkMode, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useColorModeValue, useDisclosure } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../Contexts/AuthContext';
 import { BsBell, BsBookmark, BsBoxArrowDown, BsCalendar, BsChevronDown, BsHouse, BsLock, BsPerson } from 'react-icons/bs';
 import LoginForm from '../LoginForm';
@@ -12,6 +12,11 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
     const loginFormModal = useDisclosure();
     const initRef = React.useRef<HTMLInputElement>(null);
     const [isRegistering, setIsRegistering] = React.useState(false);
+
+    // check if we are at homepage, then do a bit of theme modification
+    const { pathname } = useLocation();
+    const bgColorMenuWhenHome = useColorModeValue("gray.800", "gray.800");
+    const colorMenuWhenHome = useColorModeValue("white", "white");
 
     const becomehostColor = useColorModeValue("cyan.200", "blue.400");
 

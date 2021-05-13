@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/toast';
 import { AxiosResponse } from 'axios';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import React from 'react';
-import { QueryClient, useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { authenticate, register, validateToken } from '../API';
 
 interface UserTokenPayload extends JwtPayload {
@@ -20,16 +20,14 @@ type AuthContextStates = {
     isLoading: boolean;
 }
 
-type AuthProviderProps = {
-    queryClient?: QueryClient;
-}
-
 export const AuthContext = React.createContext<AuthContextStates>({} as AuthContextStates);
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children, queryClient }) => {
+export const AuthProvider: React.FC = ({ children }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [user, setUser] = React.useState<UserResponse | undefined>(undefined);
     const [token, setToken] = React.useState(localStorage.getItem("token"));
+
+    const queryClient = useQueryClient();
 
     const toast = useToast();
 
@@ -52,7 +50,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, queryClien
      */
     React.useEffect(() => {
         if (token) {
-            console.log("-------token changed------", token)
             const decodedUser = jwtDecode<UserTokenPayload>(token);
             setUser({
                 email: decodedUser.email,
@@ -128,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, queryClien
 
     const loginAsync = async (request: LoginRequest) => {
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try {
             mutateLogin.mutate(request);
         }

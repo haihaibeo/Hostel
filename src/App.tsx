@@ -35,7 +35,13 @@ const myTheme = extendTheme({
   }
 })
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+
+    }
+  }
+});
 
 
 export const App = () => {
@@ -69,7 +75,7 @@ export const App = () => {
       <ChakraProvider theme={myTheme}>
         <QueryClientProvider client={queryClient}>
           <Box d="flex" flexDir="column" minH="100vh">
-            <AuthProvider queryClient={queryClient}>
+            <AuthProvider>
               <ScrollToTop />
               <Box flex="1">
                 <LoadingBar color="#f11946" ref={loadingRef}></LoadingBar>
@@ -90,7 +96,7 @@ export const App = () => {
                       <Route exact path="/rooms" component={RoomsPage} />
                       <Route exact path="/room/preview" component={PreviewRoomPage} />
                       <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
-                      <AuthRoute exact path="/user/publish" component={PublishRoomPage}></AuthRoute>
+                      <RoleRoute roles={["Owner"]} exact path="/user/publish" component={PublishRoomPage}></RoleRoute>roles={["Owner"]}
                       <AuthRoute exact path="/user/register-host" component={RegisterHostPage}></AuthRoute>
                       <RoleRoute roles={["Admin"]} exact path="/admin"></RoleRoute>
                       <Route component={ErrorPage} />
@@ -147,7 +153,7 @@ const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
 }
 
 type RoleRouteProps = {
-  roles: string[];
+  roles: AppRole[];
 }
 
 const RoleRoute = (props: RoleRouteProps & RouteProps) => {

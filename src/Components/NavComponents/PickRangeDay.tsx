@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, useToast } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, useColorModeValue, useToast } from '@chakra-ui/react';
 import React from 'react'
 import DayPicker from 'react-day-picker';
 import { DateUtils } from "react-day-picker";
@@ -65,18 +65,14 @@ const getDateCheckOutOnly = (schedules?: PropertySchedule) => {
 
 const getNextPossibleDate = (day: Date, schedules?: PropertySchedule) => {
     let nextDay: Date | undefined = undefined;
-    console.log(day);
 
     if (schedules?.reservedDates) {
         schedules.reservedDates.forEach(r => {
             const rFrom = new Date(r.fromDate);
-            console.log(rFrom < day);
-            // console.log(rFrom >= day && rFrom <= nextDay);
 
             if (rFrom > day) {
                 if (!nextDay) nextDay = rFrom;
                 else if (rFrom <= nextDay) nextDay = rFrom;
-                console.log(nextDay);
             }
         })
     }
@@ -106,7 +102,6 @@ const defaultDate: PickRangeDayState = {
 const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, schedules }) => {
     const toast = useToast();
     const [state, setState] = React.useState<PickRangeDayState>({ from: from, to: to });
-    schedules = defaultSchedules;
 
     const disabled = [
         {
@@ -118,7 +113,9 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, sched
     const [disabledDays, setDisabledDays] = React.useState(disabled)
 
     React.useEffect(() => {
-        updateDate(state.from, state.to);
+        if (state.from && state.to || (!state.from && !state.to)) {
+            updateDate(state.from, state.to);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.from, state.to]);
 

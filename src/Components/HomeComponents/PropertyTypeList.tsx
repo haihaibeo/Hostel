@@ -1,6 +1,6 @@
-import { Box, Flex, Grid, Link as ChakraLink, Spacer, VStack, Image, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Grid, Link as ChakraLink, Spacer, VStack, Image, Tooltip, Button } from '@chakra-ui/react';
 import React from 'react';
-import { Link } from "react-router-dom"
+import { Link, useHistory } from "react-router-dom"
 import Slider, { Settings } from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -44,9 +44,11 @@ var settings: Settings = {
 };
 
 const PropertyTypeList = () => {
-    const { data, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
+    const { data, isError, isFetching } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
         staleTime: 1000 * 60 * 10
     });
+
+    if (isFetching) console.log("refetching prop")
 
     if (isError) return <Box>Something's wrong</Box>
     return (
@@ -65,9 +67,20 @@ type PropertyTypeProps = {
 
 
 const PropertyType: React.FC<PropertyTypeProps> = ({ type, children }) => {
+    const history = useHistory();
+
+    const handlePropTypeClick = () => {
+        history.push({
+            pathname: "/rooms",
+            state: {
+                type: type
+            }
+        })
+    }
+
     return (
         <VStack alignItems="start" p="4">
-            <ChakraLink as={Link} to={'/rooms?typeId=' + type.id}>
+            <ChakraLink onClick={handlePropTypeClick}>
                 <Tooltip hasArrow placement="top" aria-label={"tooltips"} label={type.description} openDelay={500}>
                     <Box>
                         <Box maxW="sm" maxH="sm" minH="100px">

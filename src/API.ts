@@ -80,12 +80,20 @@ export const register = (req: RegisterRequest) =>{
     })
 }
 
-export const fetchPropertiesView = (typeId: string | null) => {
+export const fetchPropertiesView = async (typeId: string | undefined, query: SearchQuery) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
     let URI = `/api/properties`;
-    if (typeId) {
-        URI += `?typeId=${typeId}`;
-    }
-    return axAuth.get<RoomCard[]>(API_URL + URI);
+    console.log(query);
+    return axios.get<RoomCard[]>(API_URL + URI,{
+        params: {
+            typeId : typeId,
+            city: query.city,
+            from: query.from,
+            to: query.to,
+            guestNum : query.guestNum,
+            childrenNum: query.childrenNum,
+        }
+    });
 }
 
 export const fetchCities = async () => {
@@ -116,6 +124,19 @@ export const fetchPropertiesSaved = () => {
 
 export const fetchUserReservation = async () => {
     return axAuth.get<Reservation[]>(API_URL + "/api/reservations/user");
+}
+
+export const fetchPricing = (bookInfo: BookingInfo) => {
+    console.log(bookInfo);
+    return axios.get<CheckPricingResponse>(API_URL + "/api/reservations/check-pricing",{
+        params: {
+            fromDate: bookInfo.bookFromDate,
+            toDate: bookInfo.bookToDate,
+            propertyId: bookInfo.roomId,
+            guestNum: bookInfo.guest,
+            childrenNum: bookInfo.children
+        }
+    })
 }
 
 interface ToggleLikeProps {

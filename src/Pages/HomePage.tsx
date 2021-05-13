@@ -10,13 +10,18 @@ import { BsArrowRight } from 'react-icons/bs';
 
 const HomePage = () => {
     const px = "10%";
+    const [search, setSearch] = React.useState<SearchQuery>({ childrenNum: 0, guestNum: 0 });
+    const updateSearch = (search: SearchQuery) => {
+        setSearch(search)
+    }
+
     return (
         <Box>
             <Box minH={["50vh", "75vh", "85vh"]} style={{ background: "url('" + BG + "') center/cover", }} color="white">
                 <Box px={px} pt="5">
                     <Navbar></Navbar>
                     <DarkMode>
-                        <SearchBar />
+                        <SearchBar search={search} updateSearch={updateSearch} />
                     </DarkMode>
                     <Box as="h1" fontFamily="mono" textShadow="gray 2px 2px 2px" color="whiteAlpha.600" fontWeight="bold" fontSize={["3xl", "4xl", "6xl", "8xl"]}
                         mt={["5vh", "10vh", "20vh", "30vh"]}>EXPLORE AROUND</Box>
