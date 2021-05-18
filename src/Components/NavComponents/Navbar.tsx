@@ -28,7 +28,7 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                         <Center>
                             <Logo />
                         </Center>
-                        <Heading size="md" display={{ base: "none", sm: "block" }}>NiceHostels.com</Heading>
+                        <Heading size="md" display={{ base: "none", sm: "block" }}>haihaibeo.github.io/Hostel/</Heading>
                     </HStack>
                 </RouterLink>
                 <Spacer />

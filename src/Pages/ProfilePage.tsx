@@ -107,7 +107,6 @@ const Reservations = (boxprops: BoxProps) => {
             console.log(res);
         },
         retry: 2,
-        staleTime: 1000 * 60 * 2,
     })
 
     if (data?.data.length === 0) {
@@ -140,7 +139,7 @@ const Reservations = (boxprops: BoxProps) => {
                                     <ListItem><Box as="h3">Total Cost: </Box></ListItem>
                                     <Box fontWeight="light">{d.total}</Box>
                                     <ListItem><Box as="h3">Reserved from: </Box></ListItem>
-                                    <Box fontWeight="light">{d.timeCreated}</Box>
+                                    <Box fontWeight="light">{d.createdAt}</Box>
                                     <ListItem><Box as="h3">Reservations Status: </Box></ListItem>
                                     <Box fontWeight="light">{d.reservationStatus}</Box>
                                     <ListItem><Box as="h3">Payment Status: </Box></ListItem>

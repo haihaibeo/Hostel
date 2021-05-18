@@ -40,7 +40,17 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
         description: "Test description",
         images: [
             {
-                url: "url",
+                url: "https://picsum.photos/1100/1000?random=1",
+                alt: "alt",
+                deleteHash: "delHash"
+            },
+            {
+                url: "https://picsum.photos/1100/1000?random=2",
+                alt: "alt",
+                deleteHash: "delHash"
+            },
+            {
+                url: "https://picsum.photos/1100/1000?random=3",
                 alt: "alt",
                 deleteHash: "delHash"
             }
@@ -59,16 +69,17 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
             pet: false,
             wifi: true
         },
-        pricing: {
-            basePrice: 250,
-            cleaningFee: 10,
-            serviceFee: 0
-        }
+        basePrice: 250,
+        cleaningFee: 10,
+        serviceFee: 0
     });
+
+    React.useEffect(() => { console.log(room.cityId) }, [room])
 
     const { data: resCities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
         staleTime: 1000 * 60 * 10,
         onSuccess: (res) => {
+            console.log(res);
             setCountries(getUniqeCountries(res));
         }
     });
@@ -123,7 +134,12 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                 <FormLabel as="h2" fontSize="md">Property Name</FormLabel>
                                 <Input variant="filled" required
                                     value={room.name}
-                                    onChange={(e) => { setRoom((r) => ({ ...r, name: e.target.value })) }}
+                                    onChange={(e) =>
+                                        setRoom(r => ({
+                                            ...r,
+                                            name: e.target.value
+                                        }))
+                                    }
                                 />
                             </FormControl>
                             <FormControl isRequired id="prop-type">
@@ -176,7 +192,7 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                     }}
                                 >
                                     {resCities?.filter(ct => ct.countryId === room.countryId).map(c => {
-                                        return <option value={c.cityId} key={c.cityId}>{c.cityName}</option>
+                                        return <option value={c.id} key={c.id}>{c.cityName}</option>
                                     })}
                                 </Select>
                             </FormControl>
@@ -275,32 +291,32 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                 </Box>
                             }
                             <Slider value={room.refundPercent} min={0} max={100} step={5} colorScheme="blue"
-                                onChangeEnd={(percent) => { setRoom((r) => ({ ...r, refundPercent: percent })) }}>
+                                onChange={(percent) => { setRoom((r) => ({ ...r, refundPercent: percent })) }}>
                                 <SliderTrack>
                                     <SliderFilledTrack />
                                 </SliderTrack>
                                 <SliderThumb boxSize={6} />
                             </Slider>
-                            <FormControl isRequired id="prop-price-base" isInvalid={room.pricing.basePrice === 0 ? true : false}>
-                                <FormLabel opacity={room.pricing.basePrice === 0 ? 0.4 : 1} as="h2" fontSize="md">Base price</FormLabel>
-                                <NumberInput value={room.pricing.basePrice}
-                                    onChange={(price) => { setRoom((r) => ({ ...r, pricing: { ...r.pricing, basePrice: parseInt(price) | 0 } })) }}
+                            <FormControl isRequired id="prop-price-base" isInvalid={room.basePrice === 0 ? true : false}>
+                                <FormLabel opacity={room.basePrice === 0 ? 0.4 : 1} as="h2" fontSize="md">Base price</FormLabel>
+                                <NumberInput value={room.basePrice}
+                                    onChange={(price) => { setRoom((r) => ({ ...r, basePrice: parseInt(price) | 0 })) }}
                                 >
                                     <NumberInputField variant="filled" required />
                                 </NumberInput>
                             </FormControl>
                             <FormControl isRequired id="prop-price-cleaning">
-                                <FormLabel opacity={room.pricing.cleaningFee === 0 ? 0.4 : 1} as="h2" fontSize="md">Cleaning fee</FormLabel>
-                                <NumberInput value={room.pricing.cleaningFee}
-                                    onChange={(price) => { setRoom((r) => ({ ...r, pricing: { ...r.pricing, cleaningFee: parseInt(price) | 0 } })) }}
+                                <FormLabel opacity={room.cleaningFee === 0 ? 0.4 : 1} as="h2" fontSize="md">Cleaning fee</FormLabel>
+                                <NumberInput value={room.cleaningFee}
+                                    onChange={(price) => { setRoom((r) => ({ ...r, cleaningFee: parseInt(price) | 0 })) }}
                                 >
                                     <NumberInputField variant="filled" required />
                                 </NumberInput>
                             </FormControl>
                             <FormControl isRequired id="prop-price-service">
-                                <FormLabel opacity={room.pricing.serviceFee === 0 ? 0.4 : 1} as="h2" fontSize="md">Service fee</FormLabel>
-                                <NumberInput value={room.pricing.serviceFee}
-                                    onChange={(price) => { setRoom((r) => ({ ...r, pricing: { ...r.pricing, serviceFee: parseInt(price) | 0 } })) }}
+                                <FormLabel opacity={room.serviceFee === 0 ? 0.4 : 1} as="h2" fontSize="md">Service fee</FormLabel>
+                                <NumberInput value={room.serviceFee}
+                                    onChange={(price) => { setRoom((r) => ({ ...r, serviceFee: parseInt(price) | 0 })) }}
                                 >
                                     <NumberInputField variant="filled" required />
                                 </NumberInput>

@@ -94,11 +94,9 @@ interface PublishRoomState {
         parking: boolean;
     },
     refundPercent: number;
-    pricing: {
-        basePrice: number;
-        serviceFee: number;
-        cleaningFee: number;
-    }
+    basePrice: number;
+    serviceFee: number;
+    cleaningFee: number;
 }
 
 interface BookingInfo {
@@ -122,12 +120,12 @@ interface CheckPricingResponse {
     totalCost: number;
 }
 
-interface Reservation {
+interface ReservationResponse {
     id: string;
     property: RoomCard;
     fromDate: string;
     toDate: string;
-    timeCreated: string;
+    createdAt: string;
     total: number;
     paymentStatus: string;
     reservationStatus: string;

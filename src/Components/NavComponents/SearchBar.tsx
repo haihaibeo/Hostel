@@ -11,7 +11,7 @@ import PopDetail from './PopDetail';
 
 export type CityResponse = {
     cityName: string;
-    cityId: string;
+    id: string;
     countryName: string;
     countryId: string;
 }
@@ -96,7 +96,7 @@ const SearchBar = (props: SearchBarProps) => {
                     {isLoading ? <InputRightElement children={<Spinner alignSelf="center" />}></InputRightElement> :
                         <datalist id="datalist-cities">
                             {cities?.map(c => {
-                                return <option key={c.cityId} value={c.cityName} />
+                                return <option key={c.id} value={c.cityName} />
                             })}
                         </datalist>
                     }
