@@ -1,16 +1,13 @@
-import { Avatar, Box, BoxProps, Button, Divider, Flex, Grid, Icon, IconButton, ListItem, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay, ModalProps, SimpleGrid, Spacer, Textarea, UnorderedList, useColorModeValue, useDisclosure, VStack } from '@chakra-ui/react';
+import { Avatar, Box, BoxProps, Button, Divider, Flex, Grid, HStack, Icon, IconButton, ListItem, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay, ModalProps, SimpleGrid, Spacer, Stack, Textarea, UnorderedList, useColorModeValue, useDisclosure, useToast, VStack } from '@chakra-ui/react';
 import React from 'react'
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { FaCheck, FaStar, FaUserShield } from 'react-icons/fa';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useLocation } from 'react-router';
-import { fetchPropertiesSaved, fetchUserReservation, toggleLike } from '../API';
+import { deleteReservation, fetchPropertiesSaved, fetchUserReservation, postReview, toggleLike, useQueryParam } from '../API';
 import RoomCard from '../Components/FilterComponents/RoomCard';
 import { AuthContext } from '../Contexts/AuthContext';
 
-const useQueryParam = () => {
-    return new URLSearchParams(useLocation().search);
-}
 
 const ProfilePage = () => {
     const { user } = React.useContext(AuthContext);
@@ -68,9 +65,33 @@ type ReviewModalProps = {
 const ReviewModal = (modalProps: ModalProps & ReviewModalProps) => {
     const [starHover, setStarHover] = React.useState(0);
     const [starReview, setStarReview] = React.useState(0);
+    const [comment, setComment] = React.useState<string>();
     const starColor = useColorModeValue("red", "yellow");
 
+    const toast = useToast();
+
     const { onClose } = modalProps;
+
+    const mutateReview = useMutation(postReview, {
+        onSuccess: (res) => {
+            console.log(res.data);
+            toast({
+                description: "Successfully sent review",
+                status: "success"
+            })
+        },
+        onError: (e) => {
+            console.log(e);
+        }
+    });
+    const sendReview = () => {
+        mutateReview.mutate({
+            propertyId: modalProps.propId,
+            starCount: starReview,
+            reviewComment: comment,
+            reservationId: modalProps.reservationId
+        })
+    }
 
     return (
         <Modal {...modalProps} onClose={() => { setStarReview(0); onClose(); }}>
@@ -89,8 +110,11 @@ const ReviewModal = (modalProps: ModalProps & ReviewModalProps) => {
                                         icon={starHover > index || starReview > index ? <BsStarFill color={starColor} /> : <BsStar />} />)
                             })}
                         </Box>
-                        <Textarea size="md" placeholder="Please describe some of your thoughts" />
-                        <Button ml="auto" isDisabled={starReview <= 0}>Send</Button>
+                        <Textarea size="md" placeholder="Please describe some of your thoughts"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                        />
+                        <Button ml="auto" isDisabled={starReview <= 0} onClick={sendReview}>Send</Button>
                     </Flex>
                 </ModalBody>
             </ModalContent>
@@ -101,13 +125,26 @@ const ReviewModal = (modalProps: ModalProps & ReviewModalProps) => {
 const Reservations = (boxprops: BoxProps) => {
     const reviewModal = useDisclosure();
     const auth = React.useContext(AuthContext)
+    const toast = useToast();
+    const [propIdReview, setPropIdReview] = React.useState("");
 
     const { data, error, isError } = useQuery(["reservations", auth.user?.token], fetchUserReservation, {
         onSuccess: (res) => {
-            console.log(res);
+
         },
         retry: 2,
     })
+
+    const deleteRsvMutate = useMutation<any, MessageResponse, any, any>(deleteReservation, {
+        onSuccess: () => { toast({ description: "Reservation is canceled", status: "success" }) },
+        onError: (error) => {
+            toast({ description: error.errors, status: "success" })
+        }
+    })
+
+    const handleDelete = (resId: string) => {
+        deleteRsvMutate.mutate(resId);
+    }
 
     if (data?.data.length === 0) {
         return <Box>
@@ -117,7 +154,7 @@ const Reservations = (boxprops: BoxProps) => {
 
     if (isError) return <Box>Something's wrong</Box>
 
-    return <Box>
+    return <Box {...boxprops}>
         <Flex gridGap="2" flexDir="column">
             <Box as={"h1"} fontFamily={"heading"} fontWeight="bold" fontSize="4xl" mb="3">Your reservations</Box>
             {data?.data.map(d =>
@@ -129,9 +166,9 @@ const Reservations = (boxprops: BoxProps) => {
                     borderRadius="10px"
                 >
                     <Flex key={d.id} w="100%" flexDir="row" gridGap="2">
-                        <Flex w="100%" flexDir="column" gridGap="2">
+                        <Stack w="100%" gridGap="2">
                             <UnorderedList h="100%">
-                                <Grid h="100%" fontWeight="bold" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} templateRows="auto">
+                                <Grid h="100%" fontWeight="bold" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} templateRows="auto" gridGap="2">
                                     <ListItem><Box as="h3">From Date: </Box></ListItem>
                                     <Box fontWeight="light">{d.fromDate}</Box>
                                     <ListItem><Box as="h3">To Date: </Box></ListItem>
@@ -144,13 +181,14 @@ const Reservations = (boxprops: BoxProps) => {
                                     <Box fontWeight="light">{d.reservationStatus}</Box>
                                     <ListItem><Box as="h3">Payment Status: </Box></ListItem>
                                     <Box fontWeight="light">{d.paymentStatus}</Box>
+                                    <Button colorScheme="green"
+                                        onClick={() => { setPropIdReview(d.property.id); reviewModal.onOpen(); }}>Write a review</Button>
+                                    <Button colorScheme="red"
+                                        isDisabled={d.reservationStatus.toLowerCase() !== "on reserved"}
+                                        onClick={() => { handleDelete(d.id) }}>Cancel reservation</Button>
                                 </Grid>
                             </UnorderedList>
-
-                            <Button colorScheme="green" onClick={() => reviewModal.onOpen()}>Write a review</Button>
-
-                            <Button colorScheme="red" isDisabled={d.reservationStatus.toLowerCase() !== "on reserved"}>Cancel reservation</Button>
-                        </Flex>
+                        </Stack>
                         <Box ml="auto" >
                             <Divider orientation="vertical" borderColor="currentcolor" />
                         </Box>
@@ -158,7 +196,7 @@ const Reservations = (boxprops: BoxProps) => {
                     </Flex>
                 </Box>
             )}
-            <ReviewModal isOpen={reviewModal.isOpen} isCentered onClose={reviewModal.onClose} reservationId="" propId="">
+            <ReviewModal isOpen={reviewModal.isOpen} isCentered onClose={reviewModal.onClose} reservationId="" propId={propIdReview}>
             </ReviewModal>
         </Flex>
     </Box>
@@ -190,24 +228,3 @@ const Notifications: React.FC = () => {
 }
 
 export default ProfilePage;
-
-const defaultRoom: RoomCard = {
-    id: "random-id-12321",
-    name: "Crystal palace",
-    thumbnailUrl: "https://picsum.photos/1100/1000?random=1",
-    thumbnailAlt: "rear view house with pool",
-    description: "Best place in townBest place in townBest place in townBest ",
-    location: "Dark side, the moon",
-    totalReview: 4,
-    totalStar: 23,
-    formattedPrice: 2021.00,
-    services: ["Pet", "Kitchen", "Breakfast", "Wifi"]
-}
-
-const defaultRooms: Array<RoomCard> = [
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=4" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=5" },
-]

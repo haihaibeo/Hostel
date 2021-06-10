@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, useColorModeValue, useToast } from '@chakra-ui/react';
+import { Box, BoxProps, Button, Center, Flex, useBreakpointValue, useColorModeValue, useMediaQuery, useToast } from '@chakra-ui/react';
 import React from 'react'
 import DayPicker from 'react-day-picker';
 import { DateUtils } from "react-day-picker";
@@ -99,7 +99,9 @@ const defaultDate: PickRangeDayState = {
     enteredTo: undefined
 }
 
-const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, schedules }) => {
+const PickRangeDay: React.FC<PickRangeDayProps & BoxProps> = (props) => {
+    const { from, to, updateDate, schedules, ...boxProps } = props;
+
     const toast = useToast();
     const [state, setState] = React.useState<PickRangeDayState>({ from: from, to: to });
 
@@ -113,7 +115,7 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, sched
     const [disabledDays, setDisabledDays] = React.useState(disabled)
 
     React.useEffect(() => {
-        if (state.from && state.to || (!state.from && !state.to)) {
+        if ((state.from && state.to) || (!state.from && !state.to)) {
             updateDate(state.from, state.to);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,11 +198,13 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, sched
         checkoutOnly: getDateCheckOutOnly(schedules),
     }
 
+    const [enoughFor2MonthsDisplay] = useMediaQuery("(min-width: 600px)");
+
     return (
-        <Box alignSelf="stretch">
-            <Flex alignItems="stretch" flexDir="column">
+        <Box d="flex" flexDir="column" {...boxProps} overflow="clip">
+            <Box alignSelf="center">
                 <DayPicker
-                    numberOfMonths={2}
+                    numberOfMonths={enoughFor2MonthsDisplay ? 2 : 1}
                     fromMonth={state.from}
                     modifiers={modifiers as any}
                     onDayClick={handleDayClick}
@@ -208,7 +212,7 @@ const PickRangeDay: React.FC<PickRangeDayProps> = ({ from, to, updateDate, sched
                     onDayMouseEnter={handleDayMouseEnter}
                     selectedDays={selected as any}>
                 </DayPicker>
-            </Flex>
+            </Box>
             <Flex justifyContent="center" alignItems="center">
                 {!state.from && !state.to && 'Please select the first day.'}
                 {state.from && !state.to && 'Please select the last day.'}

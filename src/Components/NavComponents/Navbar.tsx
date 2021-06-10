@@ -28,7 +28,7 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                         <Center>
                             <Logo />
                         </Center>
-                        <Heading size="md" display={{ base: "none", sm: "block" }}>haihaibeo.github.io/Hostel/</Heading>
+                        <Heading size="md" display={{ base: "none", sm: "block" }}>Nice homestays</Heading>
                     </HStack>
                 </RouterLink>
                 <Spacer />
@@ -71,11 +71,11 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                                     <MenuDivider />
                                     {auth.user.roles?.includes("Owner") ?
                                         <>
-                                            <MenuItem as={RouterLink} to="/user/publish">
+                                            <MenuItem as={RouterLink} to="/host/publish">
                                                 <Box mr="3"><BsLock /></Box>
                                         Host your property
                                         </MenuItem>
-                                            <MenuItem as={RouterLink} to="/user/publish">
+                                            <MenuItem as={RouterLink} to="/host/properties">
                                                 <Box mr="3"><BsHouse /></Box>
                                         Your properties
                                         </MenuItem>

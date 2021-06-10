@@ -1,20 +1,25 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { Input } from '@chakra-ui/input';
-import { Box, BoxProps, Divider, SimpleGrid, VStack, Link, Flex, Spacer } from '@chakra-ui/layout';
-import { Button, chakra, IconButton, NumberInput, NumberInputField, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Switch, useToast } from '@chakra-ui/react';
+import { Box, BoxProps, Divider, SimpleGrid, VStack, Link, Flex, Spacer, Center } from '@chakra-ui/layout';
+import { Button, chakra, CloseButton, IconButton, Image, NumberInput, NumberInputField, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Switch, useToast } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/select';
 import { Textarea } from '@chakra-ui/textarea';
 import React, { FC } from 'react'
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { useMutation, useQuery } from 'react-query';
-import { Link as RouterLink, SwitchProps } from 'react-router-dom';
-import { deleteImage, fetchCities, fetchPropertyTypes, postImage, postRoom } from '../API';
+import { Link as RouterLink, Redirect, RouteProps, SwitchProps, useLocation, useParams } from 'react-router-dom';
+import { deleteImage, fetchCities, fetchPropertyById, fetchPropertyTypes, fetchServices, postImage, postRoom, useQueryParam } from '../API';
 import { CityResponse } from '../Components/NavComponents/SearchBar';
 
 
 type Country = {
     id: string;
     countryName: string;
+}
+
+type QueryParams = {
+    isEditting?: boolean;
+    propId?: string;
 }
 
 const getUniqeCountries = (res: CityResponse[]) => {
@@ -26,13 +31,73 @@ const getUniqeCountries = (res: CityResponse[]) => {
         }
         indexes.add(i.countryId);
     }
-    console.log(countries);
     return countries;
 }
 
-const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
+const PublishRoomPage: FC<BoxProps> = (props) => {
     const toast = useToast();
-    const [countries, setCountries] = React.useState<Country[]>();
+    const [queryParams, setQueryParams] = React.useState<QueryParams>({ isEditting: false });
+
+    const { data: resCities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
+        staleTime: 1000 * 60 * 10,
+        onSuccess: (res) => {
+            console.log(res);
+            let ctr = getUniqeCountries(res)
+            setCountries(ctr);
+        }
+    });
+    const { data: resTypes, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
+        staleTime: 1000 * 60 * 10,
+        onSuccess: () => { console.log("got types") }
+    });
+    const serviceQuery = useQuery("services", fetchServices, {
+        onSuccess: (rs) => {
+            console.log(rs.data);
+        },
+        onError: (e) => console.log(e),
+    });
+
+    const editingProp = useQuery(["property", queryParams.propId], () => {
+        if (queryParams.propId) return fetchPropertyById(queryParams.propId)
+    }, {
+        onSuccess: (rs) => {
+            console.log(rs?.data);
+            if (rs?.data) {
+                const editing = rs.data;
+                setRoom(r => ({
+                    ...r,
+                    name: editing.name,
+                    basePrice: editing.formattedPrice,
+                    cleaningFee: editing.cleaningFee,
+                    description: editing.description,
+                    introdution: editing.introduction,
+                    serviceFee: editing.serviceFee,
+                    maxGuest: editing.maxGuest,
+                    images: editing.images,
+                }));
+            }
+        },
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false
+    })
+
+    const [countries, setCountries] = React.useState<Country[] | undefined>(resCities && getUniqeCountries(resCities));
+
+    const query = useQueryParam();
+    let location = useLocation();
+
+    // check editting property if location changes
+    React.useEffect(() => {
+        const id = query.get("id")?.toLocaleLowerCase();
+        if (id) {
+            console.log(id);
+            setQueryParams({ propId: id, isEditting: true });
+        }
+        return function cleanup() {
+            setQueryParams({ propId: undefined, isEditting: false });
+        }
+    }, [location])
 
     const [room, setRoom] = React.useState<PublishRoomState>({
         cityId: "1",
@@ -53,6 +118,16 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                 url: "https://picsum.photos/1100/1000?random=3",
                 alt: "alt",
                 deleteHash: "delHash"
+            },
+            {
+                url: "https://picsum.photos/1100/1000?random=10",
+                alt: "alt",
+                deleteHash: "delHash"
+            },
+            {
+                url: "https://picsum.photos/1100/1000?random=15",
+                alt: "alt",
+                deleteHash: "delHash"
             }
         ],
         maxGuest: 0,
@@ -62,30 +137,10 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
         refundPercent: 100,
         number: "12",
         streetName: "Street asdfgg",
-        services: {
-            breakfast: true,
-            kitchen: false,
-            parking: true,
-            pet: false,
-            wifi: true
-        },
+        serviceIdList: ["1", "2"],
         basePrice: 250,
         cleaningFee: 10,
         serviceFee: 0
-    });
-
-    React.useEffect(() => { console.log(room.cityId) }, [room])
-
-    const { data: resCities, isLoading, status } = useQuery<unknown, unknown, CityResponse[]>("cities", fetchCities, {
-        staleTime: 1000 * 60 * 10,
-        onSuccess: (res) => {
-            console.log(res);
-            setCountries(getUniqeCountries(res));
-        }
-    });
-
-    const { data: resTypes, isError } = useQuery<unknown, unknown, PropertyTypeType[]>("propertypeList", fetchPropertyTypes, {
-        staleTime: 1000 * 60 * 10
     });
 
     const publish = useMutation(postRoom, {
@@ -100,7 +155,12 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
 
     const handlePublish = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
-        publish.mutate(room);
+        if (queryParams.isEditting) {
+
+        }
+        else {
+            publish.mutate(room);
+        }
     }
 
     React.useEffect(() => {
@@ -118,11 +178,27 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
         }
     }
 
+    const handleDeleteImage = (image: Image) => {
+        const imgs = room.images;
+        imgs.find((value, index) => {
+            if (value === image) delete imgs[index];
+        });
+        setRoom(r => ({ ...r, images: imgs }));
+    }
+
+    if (editingProp.isLoading) {
+        return (<Spinner />)
+    }
+
+    if (editingProp.isError) {
+        return <Redirect to="/error" />
+    }
+
     return (
         <chakra.form>
             <Box d='flex' flexDir="column" mt="10" {...props}>
                 <VStack spacing="8" w="75%" alignSelf="center">
-                    <Box as="h1" fontSize="3xl" fontWeight="bold" alignSelf="start">Publish your new property</Box>
+                    <Box as="h1" fontSize="3xl" fontWeight="bold" alignSelf="start">{queryParams.propId ? "Edit your property" : "Publish your new property"}</Box>
                     <Divider borderColor="currentcolor" />
 
                     {/* Property info */}
@@ -223,10 +299,32 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                     {/* Images */}
                     <Box d={{ base: "inline-block", lg: "flex" }} flexDir="row" w="100%" fontWeight="medium" justifyContent="space-between">
                         <Box as="h2" fontSize="lg" w={{ base: "100%", lg: "30%" }} mb="5" flexWrap="wrap">
-                            <Box>Images</Box>
+                            Images
                             <Box as="span" fontStyle="oblique" fontWeight="light">{" (At least 5 images)"}</Box>
                         </Box>
-                        <Input required variant="ghost" type="file" justifySelf="flex-end" multiple accept="image/*" onChange={(e) => handleImagesInput(e)} />
+                        <VStack alignItems="start" w="100%">
+                            <Input required variant="ghost" type="file" justifySelf="flex-end" multiple accept="image/*" onChange={(e) => handleImagesInput(e)} />
+                            <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gridGap="2">
+                                {room.images.map((i, index) =>
+                                    <Box key={index} position="relative" transition="all ease 0.5s">
+                                        <Image src={i.url}
+                                            display="block"
+                                            _hover={{ opacity: "0.5" }}
+                                            style={{ backfaceVisibility: "hidden" }} />
+                                        <Center opacity="0"
+                                            w="100%"
+                                            h="100%"
+                                            position="absolute"
+                                            top="50%" left="50%"
+                                            transform="translate(-50%, -50%)"
+                                            transition="all ease 0.5s"
+                                            _hover={{ opacity: "1" }}>
+                                            <CloseButton size="lg" colorScheme="red" color="red" onClick={() => { handleDeleteImage(i) }} />
+                                        </Center>
+                                    </Box>
+                                )}
+                            </SimpleGrid>
+                        </VStack>
                     </Box>
                     <Divider borderColor="currentcolor" />
 
@@ -252,26 +350,22 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                                         onClick={() => setRoom((r) => ({ ...r, maxGuest: r.maxGuest++ }))}
                                     />
                                 </Flex>
-                                <ServiceDisplay name="Wifi"
-                                    isOn={room.services.wifi}
-                                    toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, wifi: checked }) })) }}
-                                />
-                                <ServiceDisplay name="Kitchen"
-                                    isOn={room.services.kitchen}
-                                    toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, kitchen: checked }) })) }}
-                                />
-                                <ServiceDisplay name="Breakfast"
-                                    isOn={room.services.breakfast}
-                                    toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, breakfast: checked }) })) }}
-                                />
-                                <ServiceDisplay name="Pet Allow"
-                                    isOn={room.services.pet}
-                                    toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, pet: checked }) })) }}
-                                />
-                                <ServiceDisplay name="Free Parking"
-                                    isOn={room.services.parking}
-                                    toggle={(checked) => { setRoom((r) => ({ ...r, services: ({ ...r.services, parking: checked }) })) }}
-                                />
+                                {
+                                    serviceQuery.data?.data.map(d =>
+                                        <ServiceDisplay name={d.serviceName} key={d.serviceId}
+                                            isOn={room.serviceIdList.includes(d.serviceId)}
+                                            toggle={() => {
+                                                if (room.serviceIdList.includes(d.serviceId)) {
+                                                    const newIdList = room.serviceIdList.filter(s => s != d.serviceId)
+                                                    setRoom(r => ({ ...r, serviceIdList: newIdList }));
+                                                }
+                                                else {
+                                                    setRoom(r => ({ ...r, serviceIdList: [...r.serviceIdList, d.serviceId] }));
+                                                }
+                                            }}
+                                        />
+                                    )
+                                }
                             </SimpleGrid>
                         </Box>
                     </Box>
@@ -324,17 +418,22 @@ const PublishRoomPage: FC<BoxProps> = ({ ...props }) => {
                         </VStack>
                     </Box>
 
-                    <Box>
+                    <Flex justifyContent="space-between" w="100%" px="10%">
                         <Link as={RouterLink} to="/room/preview" _hover={{ textStyle: "none" }} target="_blank" onClick={() => localStorage.setItem("previewRoom", JSON.stringify(room))}>
-                            <Button variant="solid" mr="10" colorScheme="green">
+                            <Button variant="solid" colorScheme="green">
                                 See a preview
                             </Button>
                         </Link>
 
                         <Button variant="solid" type="submit" colorScheme="blue" onClick={(e) => handlePublish(e)}>
-                            Confirm
+                            {queryParams.isEditting ? "Update property" : "Publish"}
                         </Button>
-                    </Box>
+
+                        {queryParams?.propId &&
+                            <Button variant="solid" colorScheme="red">
+                                Close this property
+                        </Button>}
+                    </Flex>
                 </VStack>
             </Box>
         </chakra.form>

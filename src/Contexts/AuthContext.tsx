@@ -9,6 +9,7 @@ interface UserTokenPayload extends JwtPayload {
     roles: string[] | string;
     email: string;
     name: string;
+    userId: string;
 }
 
 type AuthContextStates = {
@@ -22,9 +23,10 @@ type AuthContextStates = {
 
 export const AuthContext = React.createContext<AuthContextStates>({} as AuthContextStates);
 
+// TODO: Refactoring: Get user from localStorage
 export const AuthProvider: React.FC = ({ children }) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [user, setUser] = React.useState<UserResponse | undefined>(undefined);
+    const [user, setUser] = React.useState<UserResponse>();
     const [token, setToken] = React.useState(localStorage.getItem("token"));
 
     const queryClient = useQueryClient();
@@ -43,11 +45,11 @@ export const AuthProvider: React.FC = ({ children }) => {
             })
             setToken(tokenStorage);
         }
+        else {
+            loginAsync({ email: "test@mail.com", password: "password" });
+        }
     }, [])
 
-    /**
-     * If token changes, update user and axios.interceptor
-     */
     React.useEffect(() => {
         if (token) {
             const decodedUser = jwtDecode<UserTokenPayload>(token);
@@ -55,7 +57,8 @@ export const AuthProvider: React.FC = ({ children }) => {
                 email: decodedUser.email,
                 name: decodedUser.name,
                 roles: decodedUser.roles,
-                token: token
+                token: token,
+                userId: decodedUser.userId,
             })
         }
     }, [token]);
@@ -63,25 +66,6 @@ export const AuthProvider: React.FC = ({ children }) => {
     const updateToken = (token: string) => {
         setToken(token);
     }
-
-
-    // TODO: fix token validation
-    // const validation = useQuery(["validateToken", user?.token], () => {
-    //     if (user?.token) return validateToken(user?.token)
-    // }, {
-    //     refetchInterval: 1000 * 60,
-    //     staleTime: 1000 * 60 * 60 * 24,
-    //     onSuccess: () => {
-    //         axios.interceptors.request.use((config) => {
-    //             if (user?.token) {
-    //                 config.headers.Authorization = `Bearer ${user.token}`;
-    //             }
-    //             return config;
-    //         }, (e) => {
-    //             return Promise.reject(e);
-    //         })
-    //     }
-    // })
 
     const mutateLogin = useMutation<AxiosResponse<UserResponse>, any, LoginRequest>(authenticate, {
         onSuccess: (res) => {

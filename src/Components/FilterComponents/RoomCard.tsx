@@ -30,7 +30,7 @@ const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
                         <Badge borderRadius="full" px="2" colorScheme="teal">
                             New
                         </Badge>
-                        {room.services.map((s, key) => {
+                        {room.services && room.services.map((s, key) => {
                             return (
                                 <Box
                                     key={key}
@@ -41,7 +41,7 @@ const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
                                     textTransform="uppercase"
                                     ml="2"
                                     isTruncated
-                                >{s} {room.services[room.services.length - 1] !== s && <>&bull;</>} </Box>
+                                >{s.serviceName} {room.services[room.services.length - 1] !== s && <>&bull;</>} </Box>
                             )
                         })}
                     </Box>

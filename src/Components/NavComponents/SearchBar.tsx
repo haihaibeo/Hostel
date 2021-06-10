@@ -111,7 +111,7 @@ const SearchBar = (props: SearchBarProps) => {
                     <Portal>
                         <PopoverContent
                             flexWrap="nowrap" alignItems="center" style={{ backdropFilter: "blur(5px)" }}
-                            w="550px" borderRadius="0"
+                            w="100%" borderRadius="0"
                             bgColor={useColorModeValue("gray.100", "gray.800")}
                         >
                             <PickRangeDay updateDate={UpdateDate} />

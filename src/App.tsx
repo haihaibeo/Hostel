@@ -3,6 +3,8 @@ import {
   ChakraProvider,
   Box,
   extendTheme,
+  Divider,
+  useBreakpointValue,
 } from "@chakra-ui/react"
 import { HashRouter, Route, Switch, BrowserRouter, Redirect, RouteProps, useLocation, useHistory } from 'react-router-dom'
 import HomePage from "./Pages/HomePage";
@@ -24,9 +26,13 @@ import LoadingBar from "react-top-loading-bar";
 import PreviewRoomPage from "./Pages/PreviewRoomPage";
 import RegisterHostPage from "./Pages/RegisterHostPage";
 import { axAuth } from "./API";
+import OwnerListProperty from "./Pages/OwnerListProperty";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
+  config: {
+    initialColorMode: "dark"
+  },
   components: {
     Button: {
       defaultProps: {
@@ -68,15 +74,15 @@ export const App = () => {
       loadingRef.current.complete();
       return Promise.reject(e);
     })
-
   }, [])
+
   return (
     <HashRouter basename="/">
       <ChakraProvider theme={myTheme}>
         <QueryClientProvider client={queryClient}>
           <Box d="flex" flexDir="column" minH="100vh">
             <AuthProvider>
-              <ScrollToTop />
+              {/* <ScrollToTop /> */}
               <Box flex="1">
                 <LoadingBar color="#f11946" ref={loadingRef}></LoadingBar>
                 <Switch>
@@ -89,26 +95,27 @@ export const App = () => {
                       <Redirect to={{ pathname: "/login", state: { from: location } }} />
                     }
                   />
-                  <Box mx="10%" mt="5">
+                  <Box mx={{ base: "10px", md: "50px", lg: "100px" }} mt="5">
                     <Navbar></Navbar>
                     <Switch>
                       <Route exact path="/rooms/:slug" component={SingleRoom} />
                       <Route exact path="/rooms" component={RoomsPage} />
                       <Route exact path="/room/preview" component={PreviewRoomPage} />
                       <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
-                      <RoleRoute roles={["Owner"]} exact path="/user/publish" component={PublishRoomPage}></RoleRoute>roles={["Owner"]}
+                      <RoleRoute roles={["Owner"]} path="/host/publish" component={PublishRoomPage}></RoleRoute>
                       <AuthRoute exact path="/user/register-host" component={RegisterHostPage}></AuthRoute>
                       <RoleRoute roles={["Admin"]} exact path="/admin"></RoleRoute>
+                      <RoleRoute roles={["Owner"]} path="/host/properties">
+                        <OwnerListProperty />
+                      </RoleRoute>
                       <Route component={ErrorPage} />
                     </Switch>
                   </Box>
                 </Switch>
               </Box>
             </AuthProvider>
-            <Box h="200px"></Box>
-            {/* <Box position="relative" left={0} bottom={0}> */}
-            <Footer as="footer" />
-            {/* </Box> */}
+            <Divider mt="10" />
+            <Footer mx={{ base: "10px", md: "50px", lg: "100px" }} />
           </Box>
 
         </QueryClientProvider>
@@ -147,7 +154,8 @@ const AuthRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
       pathname: "/login",
       state: {
         from: rest.path
-      }
+      },
+      ...rest.location
     }} />
   </Route>)
 }
@@ -165,7 +173,8 @@ const RoleRoute = (props: RoleRouteProps & RouteProps) => {
       pathname: "/login",
       state: {
         from: rest.path
-      }
+      },
+      ...rest.location,
     }} />
   </Route>)
 

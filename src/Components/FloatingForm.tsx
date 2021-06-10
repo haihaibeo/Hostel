@@ -96,7 +96,7 @@ const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate,
                             </Button>
                         </HStack>
                     </PopoverTrigger>
-                    <PopoverContent flexWrap="nowrap" alignItems="center" w="550px"
+                    <PopoverContent flexWrap="nowrap" alignItems="center" w={{ base: "100%", lg: "550px" }}
                         style={{ backdropFilter: "blur(5px)" }}
                         borderRadius="0" bg="inherit"
                         bgColor="rgba(66, 153, 225, 0.5)"
@@ -117,10 +117,12 @@ const FloatingForm: React.FC<FloatingFormProps> = ({ room, bookInfo, updateDate,
             </Box>
 
             <Button variant="solid" colorScheme="green" alignSelf="stretch" mt="4"
-                isDisabled={!feeCollapse.isOpen}
+                isDisabled={!feeCollapse.isOpen || room.ownerInfo.userId === auth.user?.userId}
                 onClick={handleCheckout}
             >
-                {!feeCollapse.isOpen ? "Choose dates to see detail" : "Proceed checkout"}
+                {room.ownerInfo.userId === auth.user?.userId ? "You can't book your own property" :
+                    !feeCollapse.isOpen ? "Choose dates to see detail" : "Proceed checkout"
+                }
             </Button>
             <Box alignSelf="center" my="2" fontWeight="thin" fontStyle="oblique">You won't be charged yet</Box>
 

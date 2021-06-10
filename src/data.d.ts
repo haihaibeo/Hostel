@@ -8,16 +8,18 @@ interface RoomCard {
     totalReview: number;
     totalStar: number;
     formattedPrice: number;
-    services: Array<string>;
+    services: Array<Service>;
+}
+
+interface Service {
+    serviceId: string;
+    serviceName: string;
+    description?: string;
 }
 
 interface Room extends RoomCard {
     maxGuest: number;
-    images: {
-        id?: string,
-        alt?: string,
-        url?: string
-    }[],
+    images: Image[];
     introduction: string;
     liked?: boolean;
     roomBadges?: RoomBadge[];
@@ -28,6 +30,11 @@ interface Room extends RoomCard {
     daysOff?: Date[];
     serviceFee: number;
     cleaningFee: number;
+    ownerInfo: UserInfo;
+    propertyTypeId?: string;
+    streetName?: string;
+    note?: string;
+    propertyNumber: string;
 }
 
 interface UserResponse {
@@ -35,6 +42,7 @@ interface UserResponse {
     email: string;
     roles: string[] | string;
     token: string;
+    userId: string;
 }
 
 interface RoomBadge {
@@ -70,6 +78,13 @@ interface RegisterRequest extends LoginRequest {
     confirmPassword?: string;
 }
 
+interface Image {
+    id?: string;
+    url: string;
+    alt?: string;
+    deleteHash?: string;
+}
+
 interface PublishRoomState {
     name: string;
     description: string;
@@ -81,18 +96,8 @@ interface PublishRoomState {
     number: string;
     maxGuest: number;
     propTypeId: string;
-    images: {
-        url: string;
-        alt?: string;
-        deleteHash?: string;
-    }[],
-    services: {
-        wifi: boolean;
-        kitchen: boolean;
-        breakfast: boolean;
-        pet: boolean;
-        parking: boolean;
-    },
+    images: Image[];
+    serviceIdList: string[];
     refundPercent: number;
     basePrice: number;
     serviceFee: number;
@@ -138,4 +143,32 @@ interface SearchQuery {
     to?: Date;
     guestNum: number;
     childrenNum: number;
+}
+
+interface PostReviewRequest{
+    propertyId: string;
+    reservationId?: string;
+    starCount: number;
+    reviewComment?: string;
+}
+
+type UserInfo = {
+    userId: string;
+    name: string;
+    profileImageUrl?: string;
+}
+
+interface Review {
+    user: UserInfo;
+    reviewId: string;
+    comment: string;
+    starCount: number;
+    propertyId: string;
+    timeCreated: string;
+    timeUpdated: string;
+}
+
+interface MessageResponse {
+    messages?: string | string[];
+    errors?: string | string[];
 }

@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { useLocation } from "react-router-dom";
 
 // export const API_URL = "http://localhost:44344";
 export const API_URL = process.env.NODE_ENV === "development" ? "http://localhost:44344" : "https://nicehostel.herokuapp.com";
@@ -7,6 +8,7 @@ const API_IMAGE_CLIENT_ID = "30ca2ca5dd1f71d";
 // const API_IMAGE_CLIENT_SECRET = "5e497c2ba20ff36c20aa512366ddee25300c56e1";
 
 export const axAuth = axios.create();
+export const axImageUpload = axios.create();
 
 axAuth.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
@@ -18,10 +20,13 @@ axAuth.interceptors.request.use((config) => {
 axAuth.interceptors.response.use((response) => {
     return response;
 }, function (error) {
-    if (error.response.status === 401) {
-        console.log('unauthorized, logging out ...');
-        localStorage.removeItem("token");
-    }
+    // if (error.response.status === 401) {
+    //     console.log('unauthorized');
+    //     localStorage.removeItem("token");
+    // }
+    // if (error.response.status === 403){
+    //     console.log("Forbidden");
+    // }
     // else if(error.response.status === 404){
     //     return Promise.reject("Connection error")
     // }
@@ -38,8 +43,12 @@ type ReviewRequest = {
     reviewStar: number;
     
 }
-export const postReview = () => {
-
+export const postReview = (data: PostReviewRequest) => {
+    return axAuth({
+        url: API_URL + "/api/reviews/",
+        method: "POST",
+        data: data,
+    })
 }
 
 export const postRoom = (data: PublishRoomState) => {
@@ -50,7 +59,7 @@ export const postRoom = (data: PublishRoomState) => {
     })
 }
 
-export const postImage = (data : any) => axAuth({
+export const postImage = (data : any) => axImageUpload({
     method: "post",
     url: API_IMAGE_UPLOADER_URL,
     data: data,
@@ -97,7 +106,6 @@ export const register = (req: RegisterRequest) =>{
 }
 
 export const fetchPropertiesView = async (typeId: string | undefined, query: SearchQuery) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
     let URI = `/api/properties`;
     console.log(query);
     return axios.get<RoomCard[]>(API_URL + URI,{
@@ -138,6 +146,8 @@ export const fetchPropertiesSaved = () => {
     return axAuth.get<RoomCard[]>(API_URL + "/api/properties/saved");
 }
 
+export const fetchOwnerProperty = async () => axAuth.get<RoomCard[]>(API_URL + "/api/properties/host");
+
 export const fetchUserReservation = async () => {
     return axAuth.get<ReservationResponse[]>(API_URL + "/api/reservations/user");
 }
@@ -154,6 +164,26 @@ export const fetchPricing = (bookInfo: BookingInfo) => {
         }
     })
 }
+
+export const fetchReviewsForProperty = async (propId?: string) => {
+    return axAuth.get<Review[]>(API_URL + `/api/reviews`, {
+        params: {
+            propertyId: propId,
+        }
+    });
+}
+
+export const fetchServices = async () => axAuth.get<Service[]>(API_URL + "/api/properties/services");
+
+
+export const deleteReservation = async (resId: string) => {
+    return axAuth.delete(API_URL + "/api/reservations/" + resId);
+}
+
+export const useQueryParam = () => {
+    return new URLSearchParams(useLocation().search);
+}
+
 
 interface ToggleLikeProps {
     roomId: string,
