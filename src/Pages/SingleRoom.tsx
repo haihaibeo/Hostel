@@ -1,13 +1,14 @@
-import { Box, Button, Divider, Grid, GridItem, Spacer, Image, HStack, Flex, VStack, Avatar, useToast, BoxProps, Center, Spinner } from '@chakra-ui/react';
+import { Box, Button, Divider, Grid, GridItem, Spacer, Image, HStack, Flex, VStack, Avatar, useToast, BoxProps, Center, Spinner, useDisclosure } from '@chakra-ui/react';
 import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
 import { useMutation, useQuery } from 'react-query';
 import { Link, Redirect, useHistory, useLocation, useParams } from 'react-router-dom';
-import { fetchPropertyById, fetchReviewsForProperty, toggleLike } from '../API';
+import { closeProperty, fetchPropertyById, fetchReviewsForProperty, toggleLike } from '../API';
 import PickRangeDay from '../Components/NavComponents/PickRangeDay';
 import FloatingForm from '../Components/FloatingForm';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
 import { AuthContext } from '../Contexts/AuthContext';
+import { ActionAlert } from '../Components/AlertDialog';
 
 type SlugProps = {
     slug: string;
@@ -28,18 +29,22 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
     const toast = useToast();
     const history = useHistory();
 
+    const alertDeleteDialog = useDisclosure();
+    const cancelRef = React.useRef(null);
+
     const { data, isError, error, isLoading } = useQuery(["property", slug],
         () => {
             return fetchPropertyById(slug);
         },
         {
-            // staleTime: 1000 * 60 * 3,
+            staleTime: 1000 * 60 * 3,
             retry: 2,
             onError: (error) => {
                 console.log(error);
             },
             onSuccess: (rs) => {
                 if (rs.data.liked) setDidLike(rs.data.liked);
+                console.log(rs.data);
                 setRoom({ ...rs.data, roomBadges: badges });
                 setBookInfo(bi => ({ ...bi, roomId: rs.data.id }))
             },
@@ -47,7 +52,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
             }
         });
 
-    const mutateLike = useMutation(toggleLike, {
+    const likeMutation = useMutation(toggleLike, {
         onSuccess: (res) => {
             setDidLike(res.data.liked);
             toast({
@@ -85,10 +90,11 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
             });
             return;
         }
-        mutateLike.mutate({ roomId: room.id, token: auth.user.token })
+        likeMutation.mutate({ roomId: room.id, token: auth.user.token })
     }
 
     let location = useLocation();
+
     const handleEditProp = () => {
         history.push({ ...location, pathname: `/host/publish`, search: `?id=${room?.id}` });
     }
@@ -133,9 +139,29 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
 
                 <Spacer />
                 {room.ownerInfo.userId === auth.user?.userId &&
-                    <Button onClick={() => { handleEditProp() }}>
-                        Edit
-                    </Button>
+                    <>
+                        {room.propertyStatus == "IsActive" ?
+                            <Button colorScheme="red" mr="2" onClick={alertDeleteDialog.onOpen}>
+                                Close this property
+                            </Button> :
+                            <Button colorScheme="green" mr='2' onClick={alertDeleteDialog.onOpen}>
+                                Reopen this property
+                            </Button>
+                        }
+                        <Button onClick={() => { handleEditProp() }}>
+                            Edit
+                        </Button>
+                        <ActionAlert
+                            isOpen={alertDeleteDialog.isOpen}
+                            onClose={alertDeleteDialog.onClose}
+                            propertyId={room.id}
+                            leastDestructiveRef={cancelRef}
+                            headerMessage={room.propertyStatus == "IsActive" ? "Close your property" : "Reopen this property"}
+                            message={room.propertyStatus == "IsActive" ?
+                                "Closing this property will prevent further reservations. Please confirm your action!" :
+                                "Reopen this property will allow guest to find your property and make reservations"}
+                        > </ActionAlert>
+                    </>
                 }
                 <Button alignSelf="start" variant="ghost"
                     onClick={() => handleLike()}
@@ -252,9 +278,6 @@ const ReviewDisplay = (props: ReviewDisplayProps & BoxProps) => {
                 :
                 <Box d='flex' flexWrap="wrap" gridGap="5">
                     {fetchReviews.data?.data.map(r => <ReviewComment review={r} key={r.reviewId} />)}
-                    <ReviewComment review={testReview} />
-                    <ReviewComment review={testReview} />
-                    <ReviewComment review={testReview} />
                 </Box>
             }
         </Box>

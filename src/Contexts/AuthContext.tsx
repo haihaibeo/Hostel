@@ -3,7 +3,8 @@ import { AxiosResponse } from 'axios';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import React from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { authenticate, register, validateToken } from '../API';
+import { useHistory } from 'react-router-dom';
+import { authenticate, axAuth, register, validateToken } from '../API';
 
 interface UserTokenPayload extends JwtPayload {
     roles: string[] | string;
@@ -29,9 +30,19 @@ export const AuthProvider: React.FC = ({ children }) => {
     const [user, setUser] = React.useState<UserResponse>();
     const [token, setToken] = React.useState(localStorage.getItem("token"));
 
-    const queryClient = useQueryClient();
+    const history = useHistory();
 
     const toast = useToast();
+
+    React.useEffect(() => {
+        axAuth.interceptors.response.use(config => config, (error) => {
+            console.log(error);
+            if (error.status === 404) {
+                // history.push("/notfound");
+            }
+            return Promise.reject(error);
+        });
+    }, [])
 
     /**
      * Check for token in localStorage

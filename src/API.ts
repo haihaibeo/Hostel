@@ -20,6 +20,9 @@ axAuth.interceptors.request.use((config) => {
 axAuth.interceptors.response.use((response) => {
     return response;
 }, function (error) {
+    if(error.response.status === 403){
+        
+    }
     // if (error.response.status === 401) {
     //     console.log('unauthorized');
     //     localStorage.removeItem("token");
@@ -148,6 +151,12 @@ export const fetchPropertiesSaved = () => {
 
 export const fetchOwnerProperty = async () => axAuth.get<RoomCard[]>(API_URL + "/api/properties/host");
 
+export const fetchPropertiesByPropStatusId = async (statusId?: string) => {
+    return axAuth.get<RoomCard[]>(API_URL + "/api/properties/not-active", {
+        params: statusId && statusId
+    });
+} 
+
 export const fetchUserReservation = async () => {
     return axAuth.get<ReservationResponse[]>(API_URL + "/api/reservations/user");
 }
@@ -178,6 +187,10 @@ export const fetchServices = async () => axAuth.get<Service[]>(API_URL + "/api/p
 
 export const deleteReservation = async (resId: string) => {
     return axAuth.delete(API_URL + "/api/reservations/" + resId);
+}
+
+export const closeProperty = async (propId: string) => {
+    return axAuth.put(API_URL + "/api/properties/toggle-close/" + propId);
 }
 
 export const useQueryParam = () => {

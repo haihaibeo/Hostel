@@ -27,6 +27,7 @@ import PreviewRoomPage from "./Pages/PreviewRoomPage";
 import RegisterHostPage from "./Pages/RegisterHostPage";
 import { axAuth } from "./API";
 import OwnerListProperty from "./Pages/OwnerListProperty";
+import VerificationPage from "./Pages/VerificationPage";
 // theme.components.Button.baseStyle.borderRadius = "0";
 
 const myTheme = extendTheme({
@@ -72,6 +73,8 @@ export const App = () => {
       return config;
     }, (e) => {
       loadingRef.current.complete();
+      if (e.reponse.status === 404) {
+      }
       return Promise.reject(e);
     })
   }, [])
@@ -82,7 +85,7 @@ export const App = () => {
         <QueryClientProvider client={queryClient}>
           <Box d="flex" flexDir="column" minH="100vh">
             <AuthProvider>
-              {/* <ScrollToTop /> */}
+              <ScrollToTop />
               <Box flex="1">
                 <LoadingBar color="#f11946" ref={loadingRef}></LoadingBar>
                 <Switch>
@@ -104,7 +107,7 @@ export const App = () => {
                       <AuthRoute exact path="/profile" component={ProfilePage}></AuthRoute>
                       <RoleRoute roles={["Owner"]} path="/host/publish" component={PublishRoomPage}></RoleRoute>
                       <AuthRoute exact path="/user/register-host" component={RegisterHostPage}></AuthRoute>
-                      <RoleRoute roles={["Admin"]} exact path="/admin"></RoleRoute>
+                      <RoleRoute roles={["Admin"]} exact path="/verify"><VerificationPage /></RoleRoute>
                       <RoleRoute roles={["Owner"]} path="/host/properties">
                         <OwnerListProperty />
                       </RoleRoute>

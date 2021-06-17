@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Box, BoxProps, Button, Center, DarkMode, Flex, Heading, HStack, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, useColorModeValue, useDisclosure } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 import { Logo } from "../../Logo";
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link, Link as RouterLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../Contexts/AuthContext';
 import { BsBell, BsBookmark, BsBoxArrowDown, BsCalendar, BsChevronDown, BsHouse, BsLock, BsPerson } from 'react-icons/bs';
 import LoginForm from '../LoginForm';
@@ -51,6 +51,13 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                             <Button variant="ghost" onClick={() => { loginFormModal.onOpen(); setIsRegistering(true); }}>Register</Button>
                         </> :
                         <>
+                            {auth.user.roles.includes("Admin") &&
+                                <Button>
+                                    <Link to="/verify">
+                                        Verify new properties
+                                    </Link>
+                                </Button>
+                            }
                             <Menu>
                                 <MenuButton as={Button} variant="ghost" rightIcon={<BsChevronDown />}>
                                     {auth.user.name}
@@ -73,17 +80,17 @@ const Navbar: FC<BoxProps> = ({ ...props }) => {
                                         <>
                                             <MenuItem as={RouterLink} to="/host/publish">
                                                 <Box mr="3"><BsLock /></Box>
-                                        Host your property
-                                        </MenuItem>
+                                                Host your property
+                                            </MenuItem>
                                             <MenuItem as={RouterLink} to="/host/properties">
                                                 <Box mr="3"><BsHouse /></Box>
-                                        Your properties
-                                        </MenuItem>
+                                                Your properties
+                                            </MenuItem>
                                         </>
-                                        :
+                                        : !auth.user.roles.includes("Admin") &&
                                         <MenuItem bg={becomehostColor} as={RouterLink} to="/user/register-host">
                                             <Box mr="3"><BsLock /></Box>
-                                        Become a host
+                                            Become a host
                                         </MenuItem>
                                     }
                                     <MenuItem as={RouterLink} to="/">

@@ -9,6 +9,7 @@ interface RoomCard {
     totalStar: number;
     formattedPrice: number;
     services: Array<Service>;
+    propertyStatus: PropertyStatus;
 }
 
 interface Service {
@@ -36,6 +37,14 @@ interface Room extends RoomCard {
     note?: string;
     propertyNumber: string;
 }
+
+enum Role {
+    Admin = "Admin",
+    Owner = "Owner",
+    User = "User"
+}
+
+type PropertyStatus = "IsActive" | "OnValidation" | "IsRejected" | "IsClosed"
 
 interface UserResponse {
     name: string;

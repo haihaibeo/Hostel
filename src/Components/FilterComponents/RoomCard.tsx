@@ -9,6 +9,7 @@ type RoomCardProps = {
 }
 
 const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
+    console.log(room);
     return (
         <Box borderWidth="1px" borderRadius="lg" {...props} bg={useColorModeValue("gray.100", "gray.900")} d="flex" flexDir="column">
             <Link as={LinkReact} to={"/rooms/" + room.id} >
