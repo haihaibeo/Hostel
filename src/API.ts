@@ -151,8 +151,10 @@ export const fetchPropertiesSaved = () => {
 
 export const fetchOwnerProperty = async () => axAuth.get<RoomCard[]>(API_URL + "/api/properties/host");
 
+export const fetchOwnerByPropId = async (propId: string) => axAuth.get<UserInfo>(API_URL + "/api/user/propId/" + propId);
+
 export const fetchPropertiesByPropStatusId = async (statusId?: string) => {
-    return axAuth.get<RoomCard[]>(API_URL + "/api/properties/not-active", {
+    return axAuth.get<Room[]>(API_URL + "/api/properties/not-active", {
         params: statusId && statusId
     });
 } 
@@ -189,8 +191,16 @@ export const deleteReservation = async (resId: string) => {
     return axAuth.delete(API_URL + "/api/reservations/" + resId);
 }
 
-export const closeProperty = async (propId: string) => {
+export const toggleCloseProperty = async (propId: string) => {
     return axAuth.put(API_URL + "/api/properties/toggle-close/" + propId);
+}
+
+export const validateProperty = async (propId: string) => {
+    return axAuth.put(API_URL + "/api/properties/validate/" + propId);
+}
+
+export const rejectProperty = async (propId: string) => {
+    return axAuth.put(API_URL + "/api/properties/reject/" + propId);
 }
 
 export const useQueryParam = () => {

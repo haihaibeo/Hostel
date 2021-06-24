@@ -3,7 +3,7 @@ import React from 'react'
 import { BsStarFill, BsStar, BsHeart, BsHeartFill } from 'react-icons/bs';
 import { useMutation, useQuery } from 'react-query';
 import { Link, Redirect, useHistory, useLocation, useParams } from 'react-router-dom';
-import { closeProperty, fetchPropertyById, fetchReviewsForProperty, toggleLike } from '../API';
+import { toggleCloseProperty, fetchPropertyById, fetchReviewsForProperty, toggleLike } from '../API';
 import PickRangeDay from '../Components/NavComponents/PickRangeDay';
 import FloatingForm from '../Components/FloatingForm';
 import MyRoomBadge, { defaultRoomBadges } from '../Components/SingleRoomComponents/MyRoomBadge';
@@ -21,7 +21,7 @@ type SingleRoomProps = {
 const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
     const auth = React.useContext(AuthContext);
 
-    const [room, setRoom] = React.useState<Room>();
+    // const [room, setRoom] = React.useState<Room>();
     const [bookInfo, setBookInfo] = React.useState<BookingInfo>({ guest: 0, children: 0 });
     const [didLike, setDidLike] = React.useState(false);
 
@@ -45,12 +45,14 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
             onSuccess: (rs) => {
                 if (rs.data.liked) setDidLike(rs.data.liked);
                 console.log(rs.data);
-                setRoom({ ...rs.data, roomBadges: badges });
+                // setRoom({ ...rs.data, roomBadges: badges });
                 setBookInfo(bi => ({ ...bi, roomId: rs.data.id }))
             },
             onSettled: () => {
             }
         });
+
+    const room = data?.data;
 
     const likeMutation = useMutation(toggleLike, {
         onSuccess: (res) => {
@@ -138,7 +140,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
                 </Box>
 
                 <Spacer />
-                {room.ownerInfo.userId === auth.user?.userId &&
+                {(room.ownerInfo.userId === auth.user?.userId || auth.user?.roles.includes("Admin")) &&
                     <>
                         {room.propertyStatus == "IsActive" ?
                             <Button colorScheme="red" mr="2" onClick={alertDeleteDialog.onOpen}>
@@ -225,7 +227,7 @@ const SingleRoom: React.FC<SingleRoomProps> = ({ initRoom, children }) => {
                     <Divider my="3" />
 
                     {/* room badges */}
-                    {room.roomBadges?.map((b, i) => {
+                    {badges?.map((b, i) => {
                         return <MyRoomBadge id={b.id} key={i}></MyRoomBadge>
                     })}
                     <Divider my="3" />
@@ -288,7 +290,9 @@ const testReview: Review = {
     user: {
         name: "Test user name",
         userId: "123",
-        profileImageUrl: ""
+        profileImageUrl: "",
+        email: "email@mail.com",
+        phoneNumber: "0-9"
     },
     comment: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Id, repellat. Harum, facilis corrupti eligendi laborum minus nihil et a mollitia!",
     propertyId: "1",

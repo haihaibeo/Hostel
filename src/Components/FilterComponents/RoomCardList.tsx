@@ -35,15 +35,8 @@ const defaultRoom: RoomCard = {
     totalReview: 4,
     totalStar: 23,
     formattedPrice: 2021.00,
-    services: []
+    services: [],
+    propertyStatus: 'IsActive',
 }
 
-const defaultRooms: Array<RoomCard> = [
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=1" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=2" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=3" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=4" },
-    { ...defaultRoom, thumbnailUrl: "https://picsum.photos/1100/1000?random=5" },
-]
-const str = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus non laboriosam blanditiis ipsa voluptas assumenda earum fugiat vel nemo rem totam modi officiis corporis accusamus consectetur, soluta optio, quas maiores!"
 export default RoomCardList;

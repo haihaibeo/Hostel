@@ -165,6 +165,8 @@ type UserInfo = {
     userId: string;
     name: string;
     profileImageUrl?: string;
+    phoneNumber?: string;
+    email: string;
 }
 
 interface Review {

@@ -11,16 +11,15 @@ type RoomCardProps = {
 const RoomCard = ({ room, isSaved, ...props }: RoomCardProps & BoxProps) => {
     console.log(room);
     return (
-        <Box borderWidth="1px" borderRadius="lg" {...props} bg={useColorModeValue("gray.100", "gray.900")} d="flex" flexDir="column">
-            <Link as={LinkReact} to={"/rooms/" + room.id} >
-                <Box minH="200px" maxH="300px" overflow="hidden">
-                    <Image src={room.thumbnailUrl}
-                        objectFit="cover" fit="cover"
-                        fallback={<Box bgColor="gray" color="gray" />}
-                        alt={room.thumbnailAlt} overflow="hidden"
-                        style={{ transition: "ease 0.5s" }}
-                        _hover={{ transform: "scale(1.1)" }} />
-                </Box>
+        <Box borderWidth="1px" borderRadius="lg" maxW='500px' alignSelf="center" {...props} bg={useColorModeValue("gray.100", "gray.900")} d="flex" flexDir="column">
+            <Link as={LinkReact} to={"/rooms/" + room.id} height="300px" overflow="hidden">
+                <Image src={room.thumbnailUrl}
+                    height="100%" width="100%"
+                    objectFit="cover"
+                    fallback={<Box bgColor="gray" color="gray" />}
+                    alt={room.thumbnailAlt} overflow="hidden"
+                    style={{ transition: "ease 0.5s" }}
+                    _hover={{ transform: "scale(1.1)" }} />
             </Link>
 
             <Spacer />
